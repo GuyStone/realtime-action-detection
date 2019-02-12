@@ -196,6 +196,9 @@ class UCF24Detection(data.Dataset):
 
     def pull_item(self, index):
         annot_info = self.ids[index]
+        print("pull item")
+        print(annot_info)
+        print(index)
         frame_num = annot_info[1]
         video_id = annot_info[0]
         videoname = self.video_list[video_id]
