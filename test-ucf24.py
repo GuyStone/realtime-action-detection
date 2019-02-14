@@ -11,7 +11,7 @@
 import torch
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
-from data import AnnotationTransform, UCF24Detection, BaseTransform, CLASSES, detection_collate, v2
+from data import UCF24AnnotationTransform, UCF24Detection, BaseTransform, UCF24CLASSES, detection_collate, v2
 from ssd import build_ssd
 import torch.utils.data as data
 from layers.box_utils import decode, nms
@@ -69,7 +69,7 @@ def test_net(net, save_root, exp_name, input_type, dataset, iteration, num_class
     val_step = 250
     num_images = len(dataset)
     video_list = dataset.video_list
-    det_boxes = [[] for _ in range(len(CLASSES))]
+    det_boxes = [[] for _ in range(len(UCF24CLASSES))]
     gt_boxes = []
     print_time = True
     batch_iterator = None
@@ -173,7 +173,7 @@ def test_net(net, save_root, exp_name, input_type, dataset, iteration, num_class
     with open(det_file, 'wb') as f:
         pickle.dump([gt_boxes, det_boxes, save_ids], f, pickle.HIGHEST_PROTOCOL)
 
-    return evaluate_detections(gt_boxes, det_boxes, CLASSES, iou_thresh=thresh)
+    return evaluate_detections(gt_boxes, det_boxes, UCF24CLASSES, iou_thresh=thresh)
 
 
 def main():
@@ -192,7 +192,7 @@ def main():
         log_file.write(exp_name + '\n')
         trained_model_path = args.save_root + 'cache/' + exp_name + '/ssd300_ucf24_' + repr(iteration) + '.pth'
         log_file.write(trained_model_path+'\n')
-        num_classes = len(CLASSES) + 1  #7 +1 background
+        num_classes = len(UCF24CLASSES) + 1  #7 +1 background
         net = build_ssd(300, num_classes)  # initialize SSD
         net.load_state_dict(torch.load(trained_model_path))
         net.eval()
@@ -201,7 +201,7 @@ def main():
             cudnn.benchmark = True
         print('Finished loading model %d !' % iteration)
         # Load dataset
-        dataset = UCF24Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, means), AnnotationTransform(),
+        dataset = UCF24Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, means), UCF24AnnotationTransform(),
                                  input_type=args.input_type, full_test=True)
         # evaluation
         torch.cuda.synchronize()

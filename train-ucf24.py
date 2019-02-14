@@ -18,7 +18,7 @@ import torch.nn.init as init
 import argparse
 from torch.autograd import Variable
 import torch.utils.data as data
-from data import v2, UCF24Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
+from data import v2, UCF24Detection, UCF24AnnotationTransform, detection_collate, UCF24CLASSES, BaseTransform
 from utils.augmentations import SSDAugmentation
 from layers.modules import MultiBoxLoss
 from ssd import build_ssd
@@ -77,7 +77,7 @@ def main():
     args.cfg = v2
     args.train_sets = 'train'
     args.means = (104, 117, 123)
-    num_classes = len(CLASSES) + 1
+    num_classes = len(UCF24CLASSES) + 1
     args.num_classes = num_classes
     args.stepvalues = [int(val) for val in args.stepvalues.split(',')]
     args.loss_reset_step = 30
@@ -161,9 +161,9 @@ def train(args, net, optimizer, criterion, scheduler):
 
     print('Loading Dataset...')
     train_dataset = UCF24Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means),
-                                   AnnotationTransform(), input_type=args.input_type)
+                                   UCF24AnnotationTransform(), input_type=args.input_type)
     val_dataset = UCF24Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, args.means),
-                                 AnnotationTransform(), input_type=args.input_type,
+                                 UCF24AnnotationTransform(), input_type=args.input_type,
                                  full_test=False)
     epoch_size = len(train_dataset) // args.batch_size
     print('Training SSD on', train_dataset.name)
@@ -187,7 +187,7 @@ def train(args, net, optimizer, criterion, scheduler):
         )
         # initialize visdom meanAP and class APs plot
         legends = ['meanAP']
-        for cls in CLASSES:
+        for cls in UCF24CLASSES:
             legends.append(cls)
         val_lot = viz.line(
             X=torch.zeros((1,)).cpu(),
@@ -319,7 +319,7 @@ def validate(args, net, val_data_loader, val_dataset, iteration_num, iou_thresh=
     num_images = len(val_dataset)
     num_classes = args.num_classes
 
-    det_boxes = [[] for _ in range(len(CLASSES))]
+    det_boxes = [[] for _ in range(len(UCF24CLASSES))]
     gt_boxes = []
     print_time = True
     batch_iterator = None
@@ -404,7 +404,7 @@ def validate(args, net, val_data_loader, val_dataset, iteration_num, iou_thresh=
             te = time.perf_counter()
             print('NMS stuff Time {:0.3f}'.format(te - tf))
     print('Evaluating detections for itration number ', iteration_num)
-    return evaluate_detections(gt_boxes, det_boxes, CLASSES, iou_thresh=iou_thresh)
+    return evaluate_detections(gt_boxes, det_boxes, UCF24CLASSES, iou_thresh=iou_thresh)
 
 
 if __name__ == '__main__':
