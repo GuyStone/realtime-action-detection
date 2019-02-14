@@ -65,7 +65,7 @@ class AnnotationTransform(object):
         """
 
         res = []
-        for t in target::
+        for t in target:
             pts = [t[1], t[2], t[3], t[4]]
             '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
             bndbox = []
