@@ -101,7 +101,7 @@ def make_lists(rootpath, imgtype, split=1, fulltest=False):
         annotations = database[videoname]['annotations']
         num_tubes = len(annotations)
 
-        tube_labels = np.zerols((numf,num_tubes),dtype=np.int16) # check for each tube if present in
+        tube_labels = np.zeros((numf,num_tubes),dtype=np.int16) # check for each tube if present in
         tube_boxes = [[[] for _ in range(num_tubes)] for _ in range(numf)]
         for tubeid, tube in enumerate(annotations):
             # print('numf00', numf, tube['sf'], tube['ef'])
