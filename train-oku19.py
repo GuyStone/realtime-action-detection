@@ -88,8 +88,8 @@ def main():
     args.exp_name = 'CONV-SSD-{}-{}-bs-{}-{}-lr-{:05d}'.format(args.dataset,
                 args.input_type, args.batch_size, args.basenet[:-14], int(args.lr*100000))
 
-    args.save_root += args.dataset+'/'
-    args.save_root = args.save_root+'cache/'+args.exp_name+'/'
+    args.save_root += args.dataset
+    args.save_root = args.save_root+'/cache/'+args.exp_name+'/'
 
     if not os.path.isdir(args.save_root):
         os.makedirs(args.save_root)
