@@ -63,6 +63,8 @@ def readsplitfile(splitfile):
     for vid in temptrainvideos:
         vid = vid.rstrip('\n')
         trainvideos.append(vid)
+    print("trainvideos")
+    print(trainvideos)
     return trainvideos
 
 
@@ -75,6 +77,9 @@ def make_lists(rootpath, imgtype, split=1, fulltest=False):
 
     with open(rootpath + 'splitfiles/pyannot.pkl','rb') as fff:
         database = pickle.load(fff)
+
+    print("database")
+    print(database)
 
     train_action_counts = np.zeros(len(CLASSES), dtype=np.int32)
     test_action_counts = np.zeros(len(CLASSES), dtype=np.int32)
@@ -101,7 +106,7 @@ def make_lists(rootpath, imgtype, split=1, fulltest=False):
         annotations = database[videoname]['annotations']
         num_tubes = len(annotations)
 
-        tube_labels = np.zeros((numf,num_tubes),dtype=np.int16) # check for each tube if present in
+        tube_labels = np.zerols((numf,num_tubes),dtype=np.int16) # check for each tube if present in
         tube_boxes = [[[] for _ in range(num_tubes)] for _ in range(numf)]
         for tubeid, tube in enumerate(annotations):
             # print('numf00', numf, tube['sf'], tube['ef'])
@@ -196,9 +201,9 @@ class UCF24Detection(data.Dataset):
 
     def pull_item(self, index):
         annot_info = self.ids[index]
-        print("pull item")
-        print(annot_info)
-        print(index)
+        # print("pull item")
+        # print(annot_info)
+        # print(index)
         frame_num = annot_info[1]
         video_id = annot_info[0]
         videoname = self.video_list[video_id]
