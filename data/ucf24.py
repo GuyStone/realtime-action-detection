@@ -63,8 +63,6 @@ def readsplitfile(splitfile):
     for vid in temptrainvideos:
         vid = vid.rstrip('\n')
         trainvideos.append(vid)
-    print("trainvideos")
-    print(trainvideos)
     return trainvideos
 
 
@@ -77,9 +75,6 @@ def make_lists(rootpath, imgtype, split=1, fulltest=False):
 
     with open(rootpath + 'splitfiles/pyannot.pkl','rb') as fff:
         database = pickle.load(fff)
-
-    print("database")
-    print(database)
 
     train_action_counts = np.zeros(len(UCF24CLASSES), dtype=np.int32)
     test_action_counts = np.zeros(len(UCF24CLASSES), dtype=np.int32)
