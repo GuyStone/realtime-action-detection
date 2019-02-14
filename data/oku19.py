@@ -110,7 +110,7 @@ class OKU19Detection(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.name = dataset_name
-        self._annopath = os.path.join(root, 'Labels/SingleActionLabels/', '%s.csv')
+        self._annopath = os.path.join(root, 'Labels/SingleActionLabels', '%s.csv')
         self._imgpath = os.path.join(root, input_type, '%s.jpg')
         print("annopath: " + self._annopath)
         print("imgpath: " + self._imgpath)
