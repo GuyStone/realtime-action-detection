@@ -54,6 +54,7 @@ class UCF24AnnotationTransform(object):
             bndbox.append(label)
             res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
             print(res)
+            break
             # img_id = target.find('filename').text[:-4]
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
