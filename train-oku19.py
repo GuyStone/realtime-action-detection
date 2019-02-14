@@ -115,12 +115,12 @@ def main():
     net.conf.apply(weights_init)
 
     if args.input_type == 'fastOF':
-        print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + 'oku19/train_data/brox_wieghts.pth')
-        pretrained_weights = args.data_root + 'oku19/train_data/brox_wieghts.pth'
+        print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + '/train_data/brox_wieghts.pth')
+        pretrained_weights = args.data_root + '/train_data/brox_wieghts.pth'
         print('Loading base network...')
         net.load_state_dict(torch.load(pretrained_weights))
     else:
-        vgg_weights = torch.load(args.data_root +'oku19/train_data/' + args.basenet)
+        vgg_weights = torch.load(args.data_root +'/train_data/' + args.basenet)
         print('Loading base network...')
         net.vgg.load_state_dict(vgg_weights)
 
@@ -282,7 +282,7 @@ def train(args, net, optimizer, criterion, scheduler):
                 torch.cuda.synchronize()
                 tvs = time.perf_counter()
                 print('Saving state, iter:', iteration)
-                torch.save(net.state_dict(), args.save_root+'ssd300_ucf24_' +
+                torch.save(net.state_dict(), args.save_root+'ssd300_oku19_' +
                            repr(iteration) + '.pth')
 
                 net.eval() # switch net to evaluation mode
