@@ -107,11 +107,15 @@ class OKU19Detection(data.Dataset):
         self.root = root
         self.CLASSES = CLASSES
         self.image_set = image_set
+        if self.image_set == 'train':
+            self.image_path = "Train-Set"
+        elif self.image_set == 'test':
+            self.image_path = "Test-Set"
         self.transform = transform
         self.target_transform = target_transform
         self.name = dataset_name
-        self._annopath = os.path.join(root, 'Train-Set/Labels/SingleActionLabels' + '%s.csv')
-        self._imgpath = os.path.join(root, 'Train-Set', input_type + '%s.jpg')
+        self._annopath = os.path.join(root, image_path+'/Labels/SingleActionLabels' + '%s.csv')
+        self._imgpath = os.path.join(root, image_path, input_type + '%s.jpg')
         print("annopath: " + self._annopath)
         print("imgpath: " + self._imgpath)
         self.ids = list()
