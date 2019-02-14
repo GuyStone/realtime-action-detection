@@ -43,6 +43,7 @@ class UCF24AnnotationTransform(object):
             bbox = bboxs[t,:]
             label = labels[t]
             '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
+            print(bndbox)
             bndbox = []
             for i in range(4):
                 cur_pt = max(0,int(bbox[i]) - 1)
@@ -52,6 +53,7 @@ class UCF24AnnotationTransform(object):
                 bndbox.append(cur_pt)
             bndbox.append(label)
             res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
+            print(res)
             # img_id = target.find('filename').text[:-4]
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
