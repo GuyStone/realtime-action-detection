@@ -124,7 +124,7 @@ def main():
         print('Loading base network...')
         net.vgg.load_state_dict(vgg_weights)
 
-    args.data_root += args.dataset + '/'
+    # args.data_root += args.dataset + '/'
 
     parameter_dict = dict(net.named_parameters()) # Get parmeter of network in dictionary format wtih name being key
     params = []
