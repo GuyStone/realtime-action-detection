@@ -8,9 +8,9 @@ import torch.nn.init as init
 import argparse
 from torch.autograd import Variable
 import torch.utils.data as data
-
-from data import AnnotationTransform, VOCDetection, detection_collate, VOCroot, VOC_CLASSES
-from data import v2, OKU19Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
+# from data import AnnotationTransform, VOCDetection, detection_collate, VOCroot, VOC_CLASSES
+from data import v2, UCF24Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
+# from data import v2, OKU19Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
 from data import KittiLoader, AnnotationTransform_kitti,Class_to_ind
 
 from utils.augmentations import SSDAugmentation
@@ -37,11 +37,10 @@ parser.add_argument('--cuda', default=True, type=str2bool, help='Use cuda to tra
 parser.add_argument('--lr', '--learning-rate', default=3e-3, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
 parser.add_argument('--weight_decay', default=5e-4, type=float, help='Weight decay for SGD')
-parser.add_argument('--stepvalues', default='30000,60000,100000', type=str, help='iter numbers where learing rate to be dropped')
 parser.add_argument('--gamma', default=0.1, type=float, help='Gamma update for SGD')
 parser.add_argument('--log_iters', default=True, type=bool, help='Print the loss at each iteration')
 parser.add_argument('--visdom', default=False, type=str2bool, help='Use visdom to for loss visualization')
-parser.add_argument('--save_folder', default='weights/', help='Location to save ch    args.stepvalues = [int(val) for val in args.stepvalues.split(',')]eckpoint models')
+parser.add_argument('--save_folder', default='weights/', help='Location to save checkpoint models')
 parser.add_argument('--data_root', default=VOCroot, help='Location of VOC root directory')
 args = parser.parse_args()
 
@@ -53,139 +52,70 @@ else:
 if not os.path.exists(args.save_folder):
     os.mkdir(args.save_folder)
 
+# train_sets = [('2007', 'trainval'), ('2012', 'trainval')]
 # train_sets = 'train'
-# means = (104, 117, 123)  # only support voc now
-# if args.dataset=='VOC':
-#     num_classes = len(VOC_CLASSES) + 1
-#     train_sets = [('2007', 'trainval'), ('2012', 'trainval')]
-# elif args.dataset=='oku19':
-#     num_classes = len(CLASSES) + 1
-# elif args.dataset=='oku19':
-#     num_classes = len(CLASSES) + 1
-# elif args.dataset=='kitti':
-#     num_classes = 1+1
-# accum_batch_size = 32
-# iter_size = accum_batch_size / args.batch_size
-# start_iter = 0
-# tepvalues = [int(val) for val in args.stepvalues.split(',')]
-# print_step = 10
-# loss_reset_step = 30
-#
-#     ## Define the experiment Name will used to same directory and ENV for visdom
-# exp_name = 'CONV-SSD-{}-{}-bs-{}-{}-lr-{:05d}'.format(args.dataset,
-#                 args.input_type, args.batch_size, args.basenet[:-14], int(args.lr*100000))
-#
-# save_root += args.dataset+'/'
-# save_root = args.save_root+'cache/'+args.exp_name+'/'
-#
-# if args.visdom:
-#     import visdom
-#     viz = visdom.Visdom()
-#
-# ssd_net = build_ssd('train', args.dim, num_classes)
-# net = ssd_net
-#
-# if args.cuda:
-#     net = torch.nn.DataParallel(ssd_net)
-#     cudnn.benchmark = True
-#
-# if args.resume:
-#     log.l.info('Resuming training, loading {}...'.format(args.resume))
-#     ssd_net.load_weights(args.resume)
-#     start_iter = int(agrs.resume.split('/')[-1].split('.')[0].split('_')[-1])
-# else:
-#     vgg_weights = torch.load(args.save_folder + args.basenet)
-#     log.l.info('Loading base network...')
-#     ssd_net.vgg.load_state_dict(vgg_weights)
-#     start_iter = 0
-
-
-#
-# if not args.resume:
-#     log.l.info('Initializing weights...')
-#     # initialize newly added layers' weights with xavier method
-#     ssd_net.extras.apply(weights_init)
-#     ssd_net.loc.apply(weights_init)
-#     ssd_net.conf.apply(weights_init)
-#
-# optimizer = optim.SGD(net.parameters(), lr=args.lr,
-#                       momentum=args.momentum, weight_decay=args.weight_decay)
-# criterion = MultiBoxLoss(num_classes, args.dim, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
-
-def main():
-    args.cfg = v2
-    args.train_sets = 'train'
-    args.means = (104, 117, 123)
+means = (104, 117, 123)  # only support voc now
+if args.dataset=='VOC':
+    num_classes = len(VOC_CLASSES) + 1
+    train_sets = [('2007', 'trainval'), ('2012', 'trainval')]
+elif args.dataset=='oku19':
+    train_sets = 'train'
     num_classes = len(CLASSES) + 1
-    args.num_classes = num_classes
-    args.stepvalues = [int(val) for val in args.stepvalues.split(',')]
-    args.loss_reset_step = 30
-    args.eval_step = 10000
-    args.print_step = 10
+elif args.dataset=='ufc24':
+    train_sets = 'train'
+    num_classes = len(CLASSES) + 1
+elif args.dataset=='kitti':
+    num_classes = 1+1
+accum_batch_size = 32
+iter_size = accum_batch_size / args.batch_size
+stepvalues = (60000, 80000, 100000)
+start_iter = 0
 
-    ## Define the experiment Name will used to same directory and ENV for visdom
-    args.exp_name = 'CONV-SSD-{}-{}-bs-{}-{}-lr-{:05d}'.format(args.dataset,
-                args.input_type, args.batch_size, args.basenet[:-14], int(args.lr*100000))
+if args.visdom:
+    import visdom
+    viz = visdom.Visdom()
 
-    args.save_root += args.dataset+'/'
-    args.save_root = args.save_root+'cache/'+args.exp_name+'/'
+ssd_net = build_ssd('train', args.dim, num_classes)
+net = ssd_net
 
-    if not os.path.isdir(args.save_root):
-        os.makedirs(args.save_root)
+if args.cuda:
+    net = torch.nn.DataParallel(ssd_net)
+    cudnn.benchmark = True
 
-    net = build_ssd(300, args.num_classes)
+if args.resume:
+    log.l.info('Resuming training, loading {}...'.format(args.resume))
+    ssd_net.load_weights(args.resume)
+    start_iter = int(agrs.resume.split('/')[-1].split('.')[0].split('_')[-1])
+else:
+    vgg_weights = torch.load(args.save_folder + args.basenet)
+    log.l.info('Loading base network...')
+    ssd_net.vgg.load_state_dict(vgg_weights)
+    start_iter = 0
 
-    if args.cuda:
-        net = net.cuda()
-    # if args.cuda:
-    #     net = torch.nn.DataParallel(ssd_net)
-    #     cudnn.benchmark = True
+if args.cuda:
+    net = net.cuda()
 
-    def xavier(param):
-        init.xavier_uniform(param)
 
-    def weights_init(m):
-        if isinstance(m, nn.Conv2d):
-            xavier(m.weight.data)
-            m.bias.data.zero_()
+def xavier(param):
+    init.xavier_uniform(param)
 
-    print('Initializing weights for extra layers and HEADs...')
+
+def weights_init(m):
+    if isinstance(m, nn.Conv2d):
+        xavier(m.weight.data)
+        m.bias.data.zero_()
+
+
+if not args.resume:
+    log.l.info('Initializing weights...')
     # initialize newly added layers' weights with xavier method
-    net.extras.apply(weights_init)
-    net.loc.apply(weights_init)
-    net.conf.apply(weights_init)
+    ssd_net.extras.apply(weights_init)
+    ssd_net.loc.apply(weights_init)
+    ssd_net.conf.apply(weights_init)
 
-    if args.input_type == 'fastOF':
-        print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + 'ucf24/train_data/brox_wieghts.pth')
-        pretrained_weights = args.data_root + 'ucf24/train_data/brox_wieghts.pth'
-        print('Loading base network...')
-        net.load_state_dict(torch.load(pretrained_weights))
-    else:
-        vgg_weights = torch.load(args.data_root +'ucf24/train_data/' + args.basenet)
-        print('Loading base network...')
-        net.vgg.load_state_dict(vgg_weights)
-
-    args.data_root += args.dataset + '/'
-
-    parameter_dict = dict(net.named_parameters()) # Get parmeter of network in dictionary format wtih name being key
-    params = []
-
-    #Set different learning rate to bias layers and set their weight_decay to 0
-    for name, param in parameter_dict.items():
-        if name.find('bias') > -1:
-            print(name, 'layer parameters will be trained @ {}'.format(args.lr*2))
-            params += [{'params': [param], 'lr': args.lr*2, 'weight_decay': 0}]
-        else:
-            print(name, 'layer parameters will be trained @ {}'.format(args.lr))
-            params += [{'params':[param], 'lr': args.lr, 'weight_decay':args.weight_decay}]
-
-    optimizer = optim.SGD(params, lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-#    optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-
-    criterion = MultiBoxLoss(args.num_classes, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
-    scheduler = MultiStepLR(optimizer, milestones=args.stepvalues, gamma=args.gamma)
-    train(args, net, optimizer, criterion, scheduler)
-
+optimizer = optim.SGD(net.parameters(), lr=args.lr,
+                      momentum=args.momentum, weight_decay=args.weight_decay)
+criterion = MultiBoxLoss(num_classes, args.dim, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
 
 def DatasetSync(dataset='VOC',split='training'):
 
@@ -196,8 +126,11 @@ def DatasetSync(dataset='VOC',split='training'):
         dataset = VOCDetection(DataRoot, train_sets, SSDAugmentation(
         args.dim, means), AnnotationTransform())
     elif dataset=='oku19':
-        dataset = OKU19Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means),
-                                           AnnotationTransform(), input_type=args.input_type)
+        DataRoot=args.data_root
+        dataset = OKU19Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means), AnnotationTransform(), input_type=args.input_type)
+    elif dataset=='ucf24':
+        DataRoot=args.data_root
+        dataset = UCF24Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means), AnnotationTransform(), input_type=args.input_type)
     elif dataset=='kitti':
         DataRoot=os.path.join(args.data_root,'kitti')
         dataset = KittiLoader(DataRoot, split=split,img_size=(1000,300),
