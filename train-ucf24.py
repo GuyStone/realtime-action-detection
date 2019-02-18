@@ -37,7 +37,10 @@ parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Trai
 parser.add_argument('--version', default='v2', help='conv11_2(v2) or pool6(v1) as last layer')
 parser.add_argument('--basenet', default='vgg16_reducedfc.pth', help='pretrained base model')
 parser.add_argument('--dataset', default='ucf24', help='pretrained base model')
+
 parser.add_argument('--ssd_dim', default=300, type=int, help='Input Size for SSD') # only support 300 now
+# parser.add_argument('--dim', default=512, type=int, help='Size of the input image, only support 300 or 512')
+
 parser.add_argument('--input_type', default='rgb', type=str, help='INput tyep default rgb options are [rgb,brox,fastOF]')
 parser.add_argument('--jaccard_threshold', default=0.5, type=float, help='Min Jaccard index for matching')
 parser.add_argument('--batch_size', default=32, type=int, help='Batch size for training')
@@ -94,7 +97,7 @@ def main():
     if not os.path.isdir(args.save_root):
         os.makedirs(args.save_root)
 
-    net = build_ssd(300, args.num_classes)
+    net = build_ssd(args.ssd_dim, args.num_classes)
 
     if args.cuda:
         net = net.cuda()
@@ -280,7 +283,7 @@ def train(args, net, optimizer, criterion, scheduler):
                 torch.cuda.synchronize()
                 tvs = time.perf_counter()
                 print('Saving state, iter:', iteration)
-                torch.save(net.state_dict(), args.save_root+'ssd300_ucf24_' +
+                torch.save(net.state_dict(), args.save_root+args.ssd_dim+'_ucf24_' +
                            repr(iteration) + '.pth')
 
                 net.eval() # switch net to evaluation mode

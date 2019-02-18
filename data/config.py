@@ -1,54 +1,59 @@
 # config.py
-"""  SSD network configs
+import os.path
 
-Original author: Ellis Brown, Max deGroot for VOC dataset
-https://github.com/amdegroot/ssd.pytorch
+# gets home dir cross platform
+home = os.path.expanduser("~")
+ddir = os.path.join(home,"data/VOCdevkit/")
 
-"""
+# note: if you used our download scripts, this should be right
+VOCroot = ddir # path to VOCdevkit root dir
 
-#SSD300 CONFIGS
-# newer version: use additional conv11_2 layer as last layer before multibox layers
-v2 = {
-    'feature_maps' : [38, 19, 10, 5, 3, 1],
+#SSD512 and SSD300 CONFIGS
+# newer version: use additional conv12_2 layer as last layer before multibox layers
+v = {
+    '512': {
 
-    'min_dim' : 300,
+        'feature_maps' : [64, 32, 16, 8, 4, 2, 1],
 
-    'steps' : [8, 16, 32, 64, 100, 300],
+        'min_dim' : 512,
 
-    'min_sizes' : [30, 60, 111, 162, 213, 264],
+        'steps' : [8, 16, 32, 64, 128, 256, 512],
 
-    'max_sizes' : [60, 111, 162, 213, 264, 315],
+        'min_sizes' : [20, 51, 133, 215, 296, 378, 460],
 
-    # 'aspect_ratios' : [[2, 1/2], [2, 1/2, 3, 1/3], [2, 1/2, 3, 1/3],
-    #                    [2, 1/2, 3, 1/3], [2, 1/2], [2, 1/2]],
-    'aspect_ratios' : [[2], [2, 3], [2, 3], [2, 3], [2], [2]],
+        'max_sizes' : [51, 133, 215, 296, 378, 460, 542],
 
-    'variance' : [0.1, 0.2],
+        'aspect_ratios' : [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2], [2]],
 
-    'clip' : True,
+        'variance' : [0.1, 0.2],
 
-    'name' : 'v2',
-}
+        'clip' : True,
 
-# use average pooling layer as last layer before multibox layers
-v1 = {
-    'feature_maps' : [38, 19, 10, 5, 3, 1],
+        'name' : 'v2_512',
 
-    'min_dim' : 300,
+    },
 
-    'steps' : [8, 16, 32, 64, 100, 300],
+    '300': {
 
-    'min_sizes' : [30, 60, 114, 168, 222, 276],
+        'feature_maps': [38, 19, 10, 5, 3, 1],
 
-    'max_sizes' : [-1, 114, 168, 222, 276, 330],
+        'min_dim': 300,
 
-    # 'aspect_ratios' : [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]],
-    'aspect_ratios' : [[1,1,2,1/2],[1,1,2,1/2,3,1/3],[1,1,2,1/2,3,1/3],
-                        [1,1,2,1/2,3,1/3],[1,1,2,1/2,3,1/3],[1,1,2,1/2,3,1/3]],
+        'steps': [8, 16, 32, 64, 100, 300],
 
-    'variance' : [0.1, 0.2],
+        'min_sizes': [30, 60, 111, 162, 213, 264],
 
-    'clip' : True,
+        'max_sizes': [60, 111, 162, 213, 264, 315],
 
-    'name' : 'v1',
+        # 'aspect_ratios' : [[2, 1/2], [2, 1/2, 3, 1/3], [2, 1/2, 3, 1/3],
+        #                    [2, 1/2, 3, 1/3], [2, 1/2], [2, 1/2]],
+        'aspect_ratios': [[2], [2, 3], [2, 3], [2, 3], [2], [2]],
+
+        'variance': [0.1, 0.2],
+
+        'clip': True,
+
+        'name': 'v2_300',
+
+    }
 }
