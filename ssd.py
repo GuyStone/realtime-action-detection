@@ -25,13 +25,12 @@ class SSD(nn.Module):
         head: "multibox head" consists of loc and conf conv layers
     """
 
-    def __init__(self, phase, size, base, extras, head, num_classes):
+    def __init__(self, size, base, extras, head, num_classes):
         super(SSD, self).__init__()
-        self.phase = phase
         self.num_classes = num_classes
         # TODO: implement __call__ in PriorBox
         self.priorbox = PriorBox(cfg[str(size)])
-        self.priors = Variable(self.priorbox.forward(), volatile=True)
+        self.priors = Variable(self.priorbox.forward(), volatile=True).cuda()
         self.size = size
 
         # SSD network
@@ -42,10 +41,10 @@ class SSD(nn.Module):
 
         self.loc = nn.ModuleList(head[0])
         self.conf = nn.ModuleList(head[1])
-
-        if self.phase == 'test':
-            self.softmax = nn.Softmax()
-            self.detect = Detect(num_classes, self.size, 0, 200, 0.01, 0.45)
+        self.softmax = nn.Softmax()
+        # if self.phase == 'test':
+            # self.softmax = nn.Softmax()
+            #self.detect = Detect(num_classes, self.size, 0, 200, 0.01, 0.45)
 
     def forward(self, x):
         """Applies network layers and ops on input image(s) x.
@@ -95,18 +94,18 @@ class SSD(nn.Module):
 
         loc = torch.cat([o.view(o.size(0), -1) for o in loc], 1)
         conf = torch.cat([o.view(o.size(0), -1) for o in conf], 1)
-        if self.phase == "test":
-            output = self.detect(
-                loc.view(loc.size(0), -1, 4),                   # loc preds
-                self.softmax(conf.view(-1, self.num_classes)),  # conf preds
-                self.priors.type(type(x.data))                  # default boxes
-            )
-        else:
-            output = (
-                loc.view(loc.size(0), -1, 4),
-                conf.view(conf.size(0), -1, self.num_classes),
-                self.priors
-            )
+        # if self.phase == "test":
+        #     output = self.detect(
+        #         loc.view(loc.size(0), -1, 4),                   # loc preds
+        #         self.softmax(conf.view(-1, self.num_classes)),  # conf preds
+        #         self.priors.type(type(x.data))                  # default boxes
+        #     )
+        # else:
+        output = (
+            loc.view(loc.size(0), -1, 4),
+            conf.view(conf.size(0), -1, self.num_classes),
+            self.priors
+        )
         return output
 
     def load_weights(self, base_file):
@@ -197,14 +196,11 @@ mbox = {
 }
 
 
-def build_ssd(phase, size=512, num_classes=21):
-    if phase != "test" and phase != "train":
-        print("Error: Phase not recognized")
-        return
+def build_ssd(size=512, num_classes=21):
     if size != 300 and size != 512:
         print("Error: Sorry only SSD300 or SSD512 is supported currently!")
         return
 
-    return SSD(phase, size, *multibox(vgg(base[str(size)], 3),
+    return SSD(size, *multibox(vgg(base[str(size)], 3),
                                 add_extras(extras[str(size)], size, 1024),
                                 mbox[str(size)], num_classes), num_classes)

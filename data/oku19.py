@@ -1,10 +1,9 @@
-"""UCF24 Dataset Classes
-
-Author: Gurkirt Singh for ucf101-24 dataset
+"""OKU19 Dataset Classes
 
 """
 
 import os
+import csv
 import os.path
 import torch
 import torch.utils.data as data
@@ -17,9 +16,12 @@ import numpy as np
 #         'SalsaSpin','SkateBoarding', 'Skiing', 'Skijet', 'SoccerJuggling',
 #         'Surfing', 'TennisSwing', 'TrampolineJumping', 'VolleyballSpiking', 'WalkingWithDog')
 
+# CLASSES = (  # always index 0
+#         'Calling', 'Carrying', 'Drinking', 'Handshaking', 'Hugging', 'Lying', 'Pushing/Pulling',
+#          'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
+
 CLASSES = (  # always index 0
-        'Calling', 'Carrying', 'Drinking', 'Handshaking', 'Hugging', 'Lying', 'Pushing/Pulling',
-         'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
+        'Person', '')
 
 
 class AnnotationTransform(object):
@@ -29,7 +31,7 @@ class AnnotationTransform(object):
     Initilized with a dictionary lookup of classnames to indexes
     Arguments:
         class_to_ind (dict, optional): dictionary lookup of classnames -> indexes
-            (default: alphabetic indexing of UCF24's 24 classes)
+            (default: alphabetic indexing of the datasets classes)
         keep_difficult (bool, optional): keep difficult instances or not
             (default: False)
         height (int): height
@@ -39,134 +41,65 @@ class AnnotationTransform(object):
     def __init__(self, class_to_ind=None, keep_difficult=False):
         self.class_to_ind = class_to_ind or dict(
             zip(CLASSES, range(len(CLASSES))))
-        self.ind_to_class = dict(zip(range(len(CLASSES)),CLASSES))
+        # self.ind_to_class = dict(zip(range(len(CLASSES)),CLASSES))
 
-    def __call__(self, bboxs, labels, width, height):
+    def __call__(self, target, width, height):
+        """
+        Arguments:
+            target (annotation) : the target annotation to be made usable
+                will be an
+        Returns:
+            a list containing lists of bounding boxes  [bbox coords, class name]
+
+        oku19 target [  0 Track ID. please check the below part for details
+                        1 xmin. The top left x-coordinate of the bounding box.
+                        2 ymin. The top left y-coordinate of the bounding box.
+                        3 xmax. The bottom right x-coordinate of the bounding box.
+                        4 ymax. The bottom right y-coordinate of the bounding box.
+                        5 frame. The frame that this annotation represents.
+                        6 lost. If 1, the annotation is outside of the view screen.
+                        7 occluded. If 1, the annotation is occluded.
+                        8 generated. If 1, the annotation was automatically interpolated.
+                        9 label. The label for this annotation, enclosed in quotation marks. This field is always “Person”.
+                        10 (+) actions. Each column after this is an action.]
+        """
+
         res = []
-        for t in range(len(labels)):
-            bbox = bboxs[t,:]
-            label = labels[t]
+        for t in target:
+            pts = [t[1], t[2], t[3], t[4]]
             '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
             bndbox = []
             for i in range(4):
-                cur_pt = max(0,int(bbox[i]) - 1)
+                cur_pt = max(0,int(pts[i]) - 1)
                 scale =  width if i % 2 == 0 else height
-                cur_pt = min(scale, int(bbox[i]))
+                cur_pt = min(scale, int(pts[i]))
                 cur_pt = float(cur_pt) / scale
                 bndbox.append(cur_pt)
-            bndbox.append(label)
+            label_idx = self.class_to_ind[t[9]]
+            bndbox.append(label_idx)
             res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
-            # img_id = target.find('filename').text[:-4]
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
-
-
-def readsplitfile(splitfile):
-    with open(splitfile, 'r') as f:
-        temptrainvideos = f.readlines()
-    trainvideos = []
-    for vid in temptrainvideos:
-        vid = vid.rstrip('\n')
-        trainvideos.append(vid)
-    return trainvideos
-
-
-def make_lists(rootpath, imgtype, split=1, fulltest=False):
-    imagesDir = rootpath + imgtype + '/'
-    splitfile = rootpath + 'splitfiles/trainlist{:02d}.txt'.format(split)
-    trainvideos = readsplitfile(splitfile)
-    trainlist = []
-    testlist = []
-
-    with open(rootpath + 'splitfiles/pyannot.pkl','rb') as fff:
-        database = pickle.load(fff)
-
-    train_action_counts = np.zeros(len(CLASSES), dtype=np.int32)
-    test_action_counts = np.zeros(len(CLASSES), dtype=np.int32)
-
-    #4500ratios = np.asarray([1.1, 0.8, 4.7, 1.4, 0.9, 2.6, 2.2, 3.0, 3.0, 5.0, 6.2, 2.7,
-    #                     3.5, 3.1, 4.3, 2.5, 4.5, 3.4, 6.7, 3.6, 1.6, 3.4, 0.6, 4.3])
-    ratios = np.asarray([1.03, 0.75, 4.22, 1.32, 0.8, 2.36, 1.99, 2.66, 2.68, 4.51, 5.56, 2.46, 3.17, 2.76, 3.89, 2.28, 4.01, 3.08, 6.06, 3.28, 1.51, 3.05, 0.6, 3.84])
-    #ratios = np.ones_like(ratios) #TODO:uncomment this line and line 155, 156 to compute new ratios might be useful for JHMDB21
-    video_list = []
-    for vid, videoname in enumerate(sorted(database.keys())):
-        video_list.append(videoname)
-        actidx = database[videoname]['label']
-        istrain = True
-        step = ratios[actidx]
-        numf = database[videoname]['numf']
-        lastf = numf-1
-        if videoname not in trainvideos:
-            istrain = False
-            step = max(1, ratios[actidx])*3
-        if fulltest:
-            step = 1
-            lastf = numf
-
-        annotations = database[videoname]['annotations']
-        num_tubes = len(annotations)
-
-        tube_labels = np.zeros((numf,num_tubes),dtype=np.int16) # check for each tube if present in
-        tube_boxes = [[[] for _ in range(num_tubes)] for _ in range(numf)]
-        for tubeid, tube in enumerate(annotations):
-            # print('numf00', numf, tube['sf'], tube['ef'])
-            for frame_id, frame_num in enumerate(np.arange(tube['sf'], tube['ef'], 1)): # start of the tube to end frame of the tube
-                label = tube['label']
-                assert actidx == label, 'Tube label and video label should be same'
-                box = tube['boxes'][frame_id, :]  # get the box as an array
-                box = box.astype(np.float32)
-                box[2] += box[0]  #convert width to xmax
-                box[3] += box[1]  #converst height to ymax
-                tube_labels[frame_num, tubeid] = 1 #label+1  # change label in tube_labels matrix to 1 form 0
-                tube_boxes[frame_num][tubeid] = box  # put the box in matrix of lists
-
-        possible_frame_nums = np.arange(0, lastf, step)
-        # print('numf',numf,possible_frame_nums[-1])
-        for frame_num in possible_frame_nums: # loop from start to last possible frame which can make a legit sequence
-            frame_num = int(frame_num)
-            check_tubes = tube_labels[frame_num,:]
-
-            if np.sum(check_tubes)>0:  # check if there aren't any semi overlapping tubes
-                all_boxes = []
-                labels = []
-                image_name = imagesDir + videoname+'/{:05d}.jpg'.format(frame_num+1)
-                #label_name = rootpath + 'labels/' + videoname + '/{:05d}.txt'.format(frame_num + 1)
-                assert os.path.isfile(image_name), 'Image does not exist'+image_name
-                for tubeid, tube in enumerate(annotations):
-                    label = tube['label']
-                    if tube_labels[frame_num, tubeid]>0:
-                        box = np.asarray(tube_boxes[frame_num][tubeid])
-                        all_boxes.append(box)
-                        labels.append(label)
-
-                if istrain: # if it is training video
-                    trainlist.append([vid, frame_num+1, np.asarray(labels), np.asarray(all_boxes)])
-                    train_action_counts[actidx] += 1 #len(labels)
-                else: # if test video and has micro-tubes with GT
-                    testlist.append([vid, frame_num+1, np.asarray(labels), np.asarray(all_boxes)])
-                    test_action_counts[actidx] += 1 #len(labels)
-            elif fulltest and not istrain: # if test video with no ground truth and fulltest is trues
-                testlist.append([vid, frame_num+1, np.asarray([9999]), np.zeros((1,4))])
-
-    for actidx, act_count in enumerate(train_action_counts): # just to see the distribution of train and test sets
-        print('train {:05d} test {:05d} action {:02d} {:s}'.format(act_count, test_action_counts[actidx] , int(actidx), CLASSES[actidx]))
-
-    newratios = train_action_counts/5000
-    #print('new   ratios', newratios)
-    line = '['
-    for r in newratios:
-        line +='{:0.2f}, '.format(r)
-    print(line+']')
-    print('Trainlistlen', len(trainlist), ' testlist ', len(testlist))
-
-    return trainlist, testlist, video_list
 
 
 class OKU19Detection(data.Dataset):
     """OKU19 Action Detection Dataset
     to access input images and target which is annotation
+
+    input is image, target is annotation
+
+    Arguments:
+        root (string): filepath to OKU19 folder.
+        image_set (string): imageset to use (eg. 'train', 'val', 'test')
+        transform (callable, optional): transformation to perform on the
+            input image
+        target_transform (callable, optional): transformation to perform on the
+            target `annotation`
+            (eg: take in caption string, return tensor of word indices)
+        dataset_name (string, optional): which dataset to load
+            (default: 'VOC2007')
     """
 
-    def __init__(self, root, image_set, transform=None, target_transform=None,
+    def __init__(self, root, image_set, transform=None, target_transform=AnnotationTransform(),
                  dataset_name='oku19', input_type='rgb', full_test=False):
 
         self.input_type = input_type
@@ -177,18 +110,30 @@ class OKU19Detection(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.name = dataset_name
-        self._annopath = os.path.join(root, 'labels/', '%s.txt')
-        self._imgpath = os.path.join(root, input_type)
+        self._annopath = os.path.join(root, image_set+'-Set/Labels/SingleActionLabels' + '%s.csv')
+        self._imgpath = os.path.join(root, image_set+'-Set', input_type + '%s.jpg')
+        print("annopath: " + self._annopath)
+        print("imgpath: " + self._imgpath)
         self.ids = list()
+        # root = /vol/guy/oku19/1280x720
+        for line in open(os.path.join(root, 'splitfiles', image_set + 'val.txt')):
+            self.ids.append(line.strip())
 
-        trainlist, testlist, video_list = make_lists(root, input_type, split=1, fulltest=full_test)
-        self.video_list = video_list
-        if self.image_set == 'train':
-            self.ids = trainlist
-        elif self.image_set == 'test':
-            self.ids = testlist
-        else:
-            print('spacify correct subset ')
+        # for (year, name) in image_sets:
+        #     rootpath = osp.join(self.root, 'VOC' + year)
+        #     for line in open(osp.join(rootpath, 'ImageSets', 'Main', name + '.txt')):
+        #         self.ids.append((rootpath, line.strip()))
+
+# TODO: make list has been removed.. make train test video lists another way..................
+        # trainlist, testlist, video_list = make_lists(root, input_type, split=1, fulltest=full_test)
+        # self.video_list = video_list
+        # if self.image_set == 'train':
+        #     self.ids = trainlist
+        # elif self.image_set == 'test':
+        #     self.ids = testlist
+        # else:
+        #     print('spacify correct subset ')
+
 
     def __getitem__(self, index):
         im, gt, img_index = self.pull_item(index)
@@ -199,16 +144,18 @@ class OKU19Detection(data.Dataset):
         return len(self.ids)
 
     def pull_item(self, index):
-        annot_info = self.ids[index]
-        frame_num = annot_info[1]
-        video_id = annot_info[0]
-        videoname = self.video_list[video_id]
-        img_name = self._imgpath + '/{:s}/{:05d}.jpg'.format(videoname, frame_num)
-        # print(img_name)
-        img = cv2.imread(img_name)
+        img_id = self.ids[index]
+        # needs to open csv file
+        target = []
+        with open(self._annopath % img_id, 'r') as csvfile:
+            spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+            for row in spamreader:
+                target.append(row)
+        img = cv2.imread(self._imgpath % img_id)
         height, width, channels = img.shape
 
-        target = self.target_transform(annot_info[3], annot_info[2], width, height)
+        if self.target_transform is not None:
+            target = self.target_transform(target, width, height)
 
         if self.transform is not None:
             target = np.array(target)

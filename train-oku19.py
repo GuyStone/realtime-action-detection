@@ -18,7 +18,7 @@ import torch.nn.init as init
 import argparse
 from torch.autograd import Variable
 import torch.utils.data as data
-from data import v2, OKU19Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
+from data import v, OKU19Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
 from utils.augmentations import SSDAugmentation
 from layers.modules import MultiBoxLoss
 from ssd import build_ssd
@@ -36,8 +36,8 @@ def str2bool(v):
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Training')
 parser.add_argument('--version', default='v2', help='conv11_2(v2) or pool6(v1) as last layer')
 parser.add_argument('--basenet', default='vgg16_reducedfc.pth', help='pretrained base model')
-parser.add_argument('--dataset', default='ucf24', help='pretrained base model')
-parser.add_argument('--ssd_dim', default=300, type=int, help='Input Size for SSD') # only support 300 now
+parser.add_argument('--dataset', default='oku19', help='pretrained base model')
+parser.add_argument('--ssd_dim', default=512, type=int, help='Input Size for SSD') # only support 300 now
 parser.add_argument('--input_type', default='rgb', type=str, help='INput tyep default rgb options are [rgb,brox,fastOF]')
 parser.add_argument('--jaccard_threshold', default=0.5, type=float, help='Min Jaccard index for matching')
 parser.add_argument('--batch_size', default=32, type=int, help='Batch size for training')
@@ -74,7 +74,7 @@ torch.set_default_tensor_type('torch.FloatTensor')
 
 
 def main():
-    args.cfg = v2
+    args.cfg = v[str(args.ssd_dim)]
     args.train_sets = 'train'
     args.means = (104, 117, 123)
     num_classes = len(CLASSES) + 1
@@ -83,6 +83,7 @@ def main():
     args.loss_reset_step = 30
     args.eval_step = 10000
     args.print_step = 10
+
 
     ## Define the experiment Name will used to same directory and ENV for visdom
     args.exp_name = 'CONV-SSD-{}-{}-bs-{}-{}-lr-{:05d}'.format(args.dataset,
@@ -94,7 +95,7 @@ def main():
     if not os.path.isdir(args.save_root):
         os.makedirs(args.save_root)
 
-    net = build_ssd(300, args.num_classes)
+    net = build_ssd(args.ssd_dim, args.num_classes)
 
     if args.cuda:
         net = net.cuda()
@@ -115,16 +116,16 @@ def main():
     net.conf.apply(weights_init)
 
     if args.input_type == 'fastOF':
-        print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + 'ucf24/train_data/brox_wieghts.pth')
-        pretrained_weights = args.data_root + 'ucf24/train_data/brox_wieghts.pth'
+        print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + '/train_data/brox_wieghts.pth')
+        pretrained_weights = args.data_root + '/train_data/brox_wieghts.pth'
         print('Loading base network...')
         net.load_state_dict(torch.load(pretrained_weights))
     else:
-        vgg_weights = torch.load(args.data_root +'ucf24/train_data/' + args.basenet)
+        vgg_weights = torch.load(args.data_root +'/train_data/' + args.basenet)
         print('Loading base network...')
         net.vgg.load_state_dict(vgg_weights)
 
-    args.data_root += args.dataset + '/'
+    # args.data_root += args.dataset + '/'
 
     parameter_dict = dict(net.named_parameters()) # Get parmeter of network in dictionary format wtih name being key
     params = []
@@ -139,7 +140,7 @@ def main():
             params += [{'params':[param], 'lr': args.lr, 'weight_decay':args.weight_decay}]
 
     optimizer = optim.SGD(params, lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-    criterion = MultiBoxLoss(args.num_classes, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
+    criterion = MultiBoxLoss(args.num_classes, args.ssd_dim, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
     scheduler = MultiStepLR(optimizer, milestones=args.stepvalues, gamma=args.gamma)
     train(args, net, optimizer, criterion, scheduler)
 
@@ -159,7 +160,6 @@ def train(args, net, optimizer, criterion, scheduler):
     loc_losses = AverageMeter()
     cls_losses = AverageMeter()
 
-    #
     print('Loading Dataset...')
     train_dataset = OKU19Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means),
                                    AnnotationTransform(), input_type=args.input_type)
@@ -282,7 +282,7 @@ def train(args, net, optimizer, criterion, scheduler):
                 torch.cuda.synchronize()
                 tvs = time.perf_counter()
                 print('Saving state, iter:', iteration)
-                torch.save(net.state_dict(), args.save_root+'ssd300_ucf24_' +
+                torch.save(net.state_dict(), args.save_root+'ssd300_oku20_' +
                            repr(iteration) + '.pth')
 
                 net.eval() # switch net to evaluation mode

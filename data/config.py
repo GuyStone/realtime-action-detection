@@ -1,13 +1,15 @@
 # config.py
 import os.path
 
-# gets home dir cross platform
+# gets home dir cross platform # '/Users/name'
 home = os.path.expanduser("~")
 ddir = os.path.join(home,"data/VOCdevkit/")
-
+ucf24dir = os.path.join(home,"ucf24/")
+oku19dir = os.path.join(home,"oku19/")
 # note: if you used our download scripts, this should be right
 VOCroot = ddir # path to VOCdevkit root dir
-
+UCF24root = ucf24dir
+OKU19root = oku19dir
 #SSD512 and SSD300 CONFIGS
 # newer version: use additional conv12_2 layer as last layer before multibox layers
 v = {

@@ -9,7 +9,7 @@ import argparse
 from torch.autograd import Variable
 import torch.utils.data as data
 # from data import AnnotationTransform, VOCDetection, detection_collate, VOCroot, VOC_CLASSES
-from data import v2, UCF24Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
+from data import v, UCF24Detection, UCF24AnnotationTransform, detection_collate, UCF24CLASSES, BaseTransform
 # from data import v2, OKU19Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
 from data import KittiLoader, AnnotationTransform_kitti,Class_to_ind
 
@@ -25,7 +25,7 @@ def str2bool(v):
 
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Training')
 parser.add_argument('--dim', default=512, type=int, help='Size of the input image, only support 300 or 512')
-parser.add_argument('-d', '--dataset', default='VOC',help='VOC or COCO dataset')
+parser.add_argument('-d', '--dataset', default='ucf24',help='VOC or COCO dataset')
 
 parser.add_argument('--basenet', default='vgg16_reducedfc.pth', help='pretrained base model')
 parser.add_argument('--jaccard_threshold', default=0.5, type=float, help='Min Jaccard index for matching')
@@ -41,7 +41,7 @@ parser.add_argument('--gamma', default=0.1, type=float, help='Gamma update for S
 parser.add_argument('--log_iters', default=True, type=bool, help='Print the loss at each iteration')
 parser.add_argument('--visdom', default=False, type=str2bool, help='Use visdom to for loss visualization')
 parser.add_argument('--save_folder', default='weights/', help='Location to save checkpoint models')
-parser.add_argument('--data_root', default=VOCroot, help='Location of VOC root directory')
+parser.add_argument('--data_root', default='', help='Location of VOC root directory')
 args = parser.parse_args()
 
 if args.cuda and torch.cuda.is_available():
@@ -61,9 +61,9 @@ if args.dataset=='VOC':
 elif args.dataset=='oku19':
     train_sets = 'train'
     num_classes = len(CLASSES) + 1
-elif args.dataset=='ufc24':
+elif args.dataset=='ucf24':
     train_sets = 'train'
-    num_classes = len(CLASSES) + 1
+    num_classes = len(UCF24CLASSES) + 1
 elif args.dataset=='kitti':
     num_classes = 1+1
 accum_batch_size = 32
@@ -75,7 +75,7 @@ if args.visdom:
     import visdom
     viz = visdom.Visdom()
 
-ssd_net = build_ssd('train', args.dim, num_classes)
+ssd_net = build_ssd(args.dim, num_classes)
 net = ssd_net
 
 if args.cuda:
@@ -87,7 +87,7 @@ if args.resume:
     ssd_net.load_weights(args.resume)
     start_iter = int(agrs.resume.split('/')[-1].split('.')[0].split('_')[-1])
 else:
-    vgg_weights = torch.load(args.save_folder + args.basenet)
+    vgg_weights = torch.load(args.save_folder + 'train_data/' + args.basenet)
     log.l.info('Loading base network...')
     ssd_net.vgg.load_state_dict(vgg_weights)
     start_iter = 0
@@ -127,10 +127,10 @@ def DatasetSync(dataset='VOC',split='training'):
         args.dim, means), AnnotationTransform())
     elif dataset=='oku19':
         DataRoot=args.data_root
-        dataset = OKU19Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means), AnnotationTransform(), input_type=args.input_type)
+        dataset = OKU19Detection(args.data_root, train_sets, SSDAugmentation(args.dim, means), AnnotationTransform(), input_type='rgb')
     elif dataset=='ucf24':
         DataRoot=args.data_root
-        dataset = UCF24Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means), AnnotationTransform(), input_type=args.input_type)
+        dataset = UCF24Detection(args.data_root, train_sets, SSDAugmentation(args.dim, means), UCF24AnnotationTransform(), input_type='rgb')
     elif dataset=='kitti':
         DataRoot=os.path.join(args.data_root,'kitti')
         dataset = KittiLoader(DataRoot, split=split,img_size=(1000,300),
@@ -148,7 +148,7 @@ def train():
 
     # dataset = VOCDetection(args.voc_root, train_sets, SSDAugmentation(
     #     args.dim, means), AnnotationTransform())
-    dataset=DatasetSync(dataset=args.dataset,split='training')
+    dataset = DatasetSync(dataset=args.dataset,split='training')
 
 
     epoch_size = len(dataset) // args.batch_size
@@ -202,7 +202,9 @@ def train():
             epoch += 1
 
         # load train data
-        images, targets = next(batch_iterator)
+        # images, targets = next(batch_iterator)
+        # for ucf us images, targets, img_indexs
+        images, targets, img_indexs = next(batch_iterator)
         #embed()
         if args.cuda:
             images = Variable(images.cuda())
@@ -248,7 +250,7 @@ def train():
                 )
         if iteration % 5000 == 0:
             log.l.info('Saving state, iter: {}'.format(iteration))
-            torch.save(ssd_net.state_dict(), 'weights/ssd' + str(args.dim) + '_0712_' +
+            torch.save(ssd_net.state_dict(), args.save_folder + 'weights/ssd' + str(args.dim) + '_0712_' +
                        repr(iteration) + '.pth')
     torch.save(ssd_net.state_dict(), args.save_folder + 'ssd_' + str(args.dim) + '.pth')
 
