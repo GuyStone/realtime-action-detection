@@ -163,9 +163,9 @@ def train(args, net, optimizer, criterion, scheduler):
     print('Loading Dataset...')
     train_dataset = OKU19Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means),
                                    AnnotationTransform(), input_type=args.input_type)
-    val_dataset = OKU19Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, args.means),
-                                 AnnotationTransform(), input_type=args.input_type,
-                                 full_test=False)
+    # val_dataset = OKU19Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, args.means),
+    #                              AnnotationTransform(), input_type=args.input_type,
+                                 # full_test=False)
     epoch_size = len(train_dataset) // args.batch_size
     print('Training SSD on', train_dataset.name)
 
@@ -206,8 +206,8 @@ def train(args, net, optimizer, criterion, scheduler):
     # Load DATA and VAL
     train_data_loader = data.DataLoader(train_dataset, args.batch_size, num_workers=args.num_workers,
                                   shuffle=True, collate_fn=detection_collate, pin_memory=True)
-    val_data_loader = data.DataLoader(val_dataset, args.batch_size, num_workers=args.num_workers,
-                                 shuffle=False, collate_fn=detection_collate, pin_memory=True)
+    # val_data_loader = data.DataLoader(val_dataset, args.batch_size, num_workers=args.num_workers,
+    #                              shuffle=False, collate_fn=detection_collate, pin_memory=True)
     itr_count = 0
     torch.cuda.synchronize()
     t0 = time.perf_counter()
@@ -285,27 +285,27 @@ def train(args, net, optimizer, criterion, scheduler):
                 torch.save(net.state_dict(), args.save_root+'ssd300_oku20_' +
                            repr(iteration) + '.pth')
 
-                net.eval() # switch net to evaluation mode
-                mAP, ap_all, ap_strs = validate(args, net, val_data_loader, val_dataset, iteration, iou_thresh=args.iou_thresh)
-
-                for ap_str in ap_strs:
-                    print(ap_str)
-                    log_file.write(ap_str+'\n')
-                ptr_str = '\nMEANAP:::=>'+str(mAP)+'\n'
-                print(ptr_str)
-                log_file.write(ptr_str)
-
-                if args.visdom:
-                    aps = [mAP]
-                    for ap in ap_all:
-                        aps.append(ap)
-                    viz.line(
-                        X=torch.ones((1, args.num_classes)).cpu() * iteration,
-                        Y=torch.from_numpy(np.asarray(aps)).unsqueeze(0).cpu(),
-                        win=val_lot,
-                        update='append'
-                            )
-                net.train() # Switch net back to training mode
+                # net.eval() # switch net to evaluation mode
+                # mAP, ap_all, ap_strs = validate(args, net, val_data_loader, val_dataset, iteration, iou_thresh=args.iou_thresh)
+                #
+                # for ap_str in ap_strs:
+                #     print(ap_str)
+                #     log_file.write(ap_str+'\n')
+                # ptr_str = '\nMEANAP:::=>'+str(mAP)+'\n'
+                # print(ptr_str)
+                # log_file.write(ptr_str)
+                #
+                # if args.visdom:
+                #     aps = [mAP]
+                #     for ap in ap_all:
+                #         aps.append(ap)
+                #     viz.line(
+                #         X=torch.ones((1, args.num_classes)).cpu() * iteration,
+                #         Y=torch.from_numpy(np.asarray(aps)).unsqueeze(0).cpu(),
+                #         win=val_lot,
+                #         update='append'
+                #             )
+                # net.train() # Switch net back to training mode
                 torch.cuda.synchronize()
                 t0 = time.perf_counter()
                 prt_str = '\nValidation TIME::: {:0.3f}\n\n'.format(t0-tvs)
@@ -314,99 +314,99 @@ def train(args, net, optimizer, criterion, scheduler):
 
     log_file.close()
 
-
-def validate(args, net, val_data_loader, val_dataset, iteration_num, iou_thresh=0.5):
-    """Test a SSD network on an image database."""
-    print('Validating at ', iteration_num)
-    num_images = len(val_dataset)
-    num_classes = args.num_classes
-
-    det_boxes = [[] for _ in range(len(CLASSES))]
-    gt_boxes = []
-    print_time = True
-    batch_iterator = None
-    val_step = 100
-    count = 0
-    torch.cuda.synchronize()
-    ts = time.perf_counter()
-
-    for val_itr in range(len(val_data_loader)):
-        if not batch_iterator:
-            batch_iterator = iter(val_data_loader)
-
-        torch.cuda.synchronize()
-        t1 = time.perf_counter()
-
-        images, targets, img_indexs = next(batch_iterator)
-        batch_size = images.size(0)
-        height, width = images.size(2), images.size(3)
-
-        if args.cuda:
-            images = Variable(images.cuda(), volatile=True)
-        output = net(images)
-
-        loc_data = output[0]
-        conf_preds = output[1]
-        prior_data = output[2]
-
-        if print_time and val_itr%val_step == 0:
-            torch.cuda.synchronize()
-            tf = time.perf_counter()
-            print('Forward Time {:0.3f}'.format(tf-t1))
-        for b in range(batch_size):
-            gt = targets[b].numpy()
-            gt[:,0] *= width
-            gt[:,2] *= width
-            gt[:,1] *= height
-            gt[:,3] *= height
-            gt_boxes.append(gt)
-            decoded_boxes = decode(loc_data[b].data, prior_data.data, args.cfg['variance']).clone()
-            conf_scores = net.softmax(conf_preds[b]).data.clone()
-
-            for cl_ind in range(1, num_classes):
-                scores = conf_scores[:, cl_ind].squeeze()
-                c_mask = scores.gt(args.conf_thresh)  # greater than minmum threshold
-                scores = scores[c_mask].squeeze()
-                # print('scores size',scores.size())
-                if scores.dim() == 0:
-                    # print(len(''), ' dim ==0 ')
-                    det_boxes[cl_ind - 1].append(np.asarray([]))
-                    continue
-                boxes = decoded_boxes.clone()
-                l_mask = c_mask.unsqueeze(1).expand_as(boxes)
-                boxes = boxes[l_mask].view(-1, 4)
-                # idx of highest scoring and non-overlapping boxes per class
-                ids, counts = nms(boxes, scores, args.nms_thresh, args.topk)  # idsn - ids after nms
-                scores = scores[ids[:counts]].cpu().numpy()
-                boxes = boxes[ids[:counts]].cpu().numpy()
-                # print('boxes sahpe',boxes.shape)
-                boxes[:,0] *= width
-                boxes[:,2] *= width
-                boxes[:,1] *= height
-                boxes[:,3] *= height
-
-                for ik in range(boxes.shape[0]):
-                    boxes[ik, 0] = max(0, boxes[ik, 0])
-                    boxes[ik, 2] = min(width, boxes[ik, 2])
-                    boxes[ik, 1] = max(0, boxes[ik, 1])
-                    boxes[ik, 3] = min(height, boxes[ik, 3])
-
-                cls_dets = np.hstack((boxes, scores[:, np.newaxis])).astype(np.float32, copy=True)
-
-                det_boxes[cl_ind-1].append(cls_dets)
-            count += 1
-        if val_itr%val_step == 0:
-            torch.cuda.synchronize()
-            te = time.perf_counter()
-            print('im_detect: {:d}/{:d} time taken {:0.3f}'.format(count, num_images, te-ts))
-            torch.cuda.synchronize()
-            ts = time.perf_counter()
-        if print_time and val_itr%val_step == 0:
-            torch.cuda.synchronize()
-            te = time.perf_counter()
-            print('NMS stuff Time {:0.3f}'.format(te - tf))
-    print('Evaluating detections for itration number ', iteration_num)
-    return evaluate_detections(gt_boxes, det_boxes, CLASSES, iou_thresh=iou_thresh)
+#
+# def validate(args, net, val_data_loader, val_dataset, iteration_num, iou_thresh=0.5):
+#     """Test a SSD network on an image database."""
+#     print('Validating at ', iteration_num)
+#     num_images = len(val_dataset)
+#     num_classes = args.num_classes
+#
+#     det_boxes = [[] for _ in range(len(CLASSES))]
+#     gt_boxes = []
+#     print_time = True
+#     batch_iterator = None
+#     val_step = 100
+#     count = 0
+#     torch.cuda.synchronize()
+#     ts = time.perf_counter()
+#
+#     for val_itr in range(len(val_data_loader)):
+#         if not batch_iterator:
+#             batch_iterator = iter(val_data_loader)
+#
+#         torch.cuda.synchronize()
+#         t1 = time.perf_counter()
+#
+#         images, targets, img_indexs = next(batch_iterator)
+#         batch_size = images.size(0)
+#         height, width = images.size(2), images.size(3)
+#
+#         if args.cuda:
+#             images = Variable(images.cuda(), volatile=True)
+#         output = net(images)
+#
+#         loc_data = output[0]
+#         conf_preds = output[1]
+#         prior_data = output[2]
+#
+#         if print_time and val_itr%val_step == 0:
+#             torch.cuda.synchronize()
+#             tf = time.perf_counter()
+#             print('Forward Time {:0.3f}'.format(tf-t1))
+#         for b in range(batch_size):
+#             gt = targets[b].numpy()
+#             gt[:,0] *= width
+#             gt[:,2] *= width
+#             gt[:,1] *= height
+#             gt[:,3] *= height
+#             gt_boxes.append(gt)
+#             decoded_boxes = decode(loc_data[b].data, prior_data.data, args.cfg['variance']).clone()
+#             conf_scores = net.softmax(conf_preds[b]).data.clone()
+#
+#             for cl_ind in range(1, num_classes):
+#                 scores = conf_scores[:, cl_ind].squeeze()
+#                 c_mask = scores.gt(args.conf_thresh)  # greater than minmum threshold
+#                 scores = scores[c_mask].squeeze()
+#                 # print('scores size',scores.size())
+#                 if scores.dim() == 0:
+#                     # print(len(''), ' dim ==0 ')
+#                     det_boxes[cl_ind - 1].append(np.asarray([]))
+#                     continue
+#                 boxes = decoded_boxes.clone()
+#                 l_mask = c_mask.unsqueeze(1).expand_as(boxes)
+#                 boxes = boxes[l_mask].view(-1, 4)
+#                 # idx of highest scoring and non-overlapping boxes per class
+#                 ids, counts = nms(boxes, scores, args.nms_thresh, args.topk)  # idsn - ids after nms
+#                 scores = scores[ids[:counts]].cpu().numpy()
+#                 boxes = boxes[ids[:counts]].cpu().numpy()
+#                 # print('boxes sahpe',boxes.shape)
+#                 boxes[:,0] *= width
+#                 boxes[:,2] *= width
+#                 boxes[:,1] *= height
+#                 boxes[:,3] *= height
+#
+#                 for ik in range(boxes.shape[0]):
+#                     boxes[ik, 0] = max(0, boxes[ik, 0])
+#                     boxes[ik, 2] = min(width, boxes[ik, 2])
+#                     boxes[ik, 1] = max(0, boxes[ik, 1])
+#                     boxes[ik, 3] = min(height, boxes[ik, 3])
+#
+#                 cls_dets = np.hstack((boxes, scores[:, np.newaxis])).astype(np.float32, copy=True)
+#
+#                 det_boxes[cl_ind-1].append(cls_dets)
+#             count += 1
+#         if val_itr%val_step == 0:
+#             torch.cuda.synchronize()
+#             te = time.perf_counter()
+#             print('im_detect: {:d}/{:d} time taken {:0.3f}'.format(count, num_images, te-ts))
+#             torch.cuda.synchronize()
+#             ts = time.perf_counter()
+#         if print_time and val_itr%val_step == 0:
+#             torch.cuda.synchronize()
+#             te = time.perf_counter()
+#             print('NMS stuff Time {:0.3f}'.format(te - tf))
+#     print('Evaluating detections for itration number ', iteration_num)
+#     return evaluate_detections(gt_boxes, det_boxes, CLASSES, iou_thresh=iou_thresh)
 
 
 if __name__ == '__main__':
