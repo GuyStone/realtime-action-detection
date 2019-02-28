@@ -310,7 +310,7 @@ def train(args, net, optimizer, criterion, scheduler):
                 t0 = time.perf_counter()
                 prt_str = '\nValidation TIME::: {:0.3f}\n\n'.format(t0-tvs)
                 print(prt_str)
-                log_file.write(ptr_str)
+                # log_file.write(ptr_str)
 
     log_file.close()
 
