@@ -22,7 +22,7 @@ class Detect(Function):
         cfg = v[str(size)]
         self.variance = cfg['variance']
         # self.output.zero_()
-        # self.output = torch.zeros(1, self.num_classes, self.top_k, 5)
+        self.output = torch.zeros(1, self.num_classes, self.top_k, 5)
 
 
     def forward(self, loc_data, conf_data, prior_data):
