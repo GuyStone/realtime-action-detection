@@ -196,11 +196,11 @@ mbox = {
 }
 
 
-def build_ssd(size=512, num_classes=21):
+def build_ssd(phase='train', size=512, num_classes=21):
     if size != 300 and size != 512:
         print("Error: Sorry only SSD300 or SSD512 is supported currently!")
         return
 
-    return SSD(size, *multibox(vgg(base[str(size)], 3),
+    return SSD(phase, size, *multibox(vgg(base[str(size)], 3),
                                 add_extras(extras[str(size)], size, 1024),
                                 mbox[str(size)], num_classes), num_classes)
