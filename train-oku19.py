@@ -97,8 +97,11 @@ def main():
 
     net = build_ssd('train', args.ssd_dim, args.num_classes)
 
+    # if args.cuda:
+    #     net = net.cuda()
     if args.cuda:
-        net = net.cuda()
+        net = torch.nn.DataParallel(ssd_net)
+        cudnn.benchmark = True
 
     def xavier(param):
         init.xavier_uniform(param)
