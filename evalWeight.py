@@ -108,11 +108,11 @@ def main():
             m.bias.data.zero_()
 
 
-    print('Initializing weights for extra layers and HEADs...')
-    # initialize newly added layers' weights with xavier method
-    net.extras.apply(weights_init)
-    net.loc.apply(weights_init)
-    net.conf.apply(weights_init)
+    # print('Initializing weights for extra layers and HEADs...')
+    # # initialize newly added layers' weights with xavier method
+    # net.extras.apply(weights_init)
+    # net.loc.apply(weights_init)
+    # net.conf.apply(weights_init)
 
     if args.input_type == 'fastOF':
         print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + '/train_data/brox_wieghts.pth')
