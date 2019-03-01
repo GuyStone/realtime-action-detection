@@ -27,6 +27,7 @@ class SSD(nn.Module):
 
     def __init__(self, phase, size, base, extras, head, num_classes):
         super(SSD, self).__init__()
+        self.phase = phase
         self.num_classes = num_classes
         # TODO: implement __call__ in PriorBox
         self.priorbox = PriorBox(cfg[str(size)])
