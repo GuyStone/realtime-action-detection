@@ -75,7 +75,6 @@ torch.set_default_tensor_type('torch.FloatTensor')
 
 def main():
     args.cfg = v[str(args.ssd_dim)]
-    args.train_sets = 'train'
     args.means = (104, 117, 123)
     num_classes = len(CLASSES) + 1
     args.num_classes = num_classes
@@ -97,7 +96,7 @@ def main():
     trained_model_path = torch.load(args.data_root +'/train_data/' + args.basenet)
     print('Loading base network...')
     net = build_ssd('test', 512, num_classes)  # initialize SSD
-    net.load_state_dict(torch.load(trained_model_path))
+    net.load_weights(torch.load(trained_model_path))
     net.eval()
     if args.cuda:
         net = net.cuda()
