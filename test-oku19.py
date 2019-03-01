@@ -28,7 +28,7 @@ def str2bool(v):
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Training')
 parser.add_argument('--version', default='v2', help='conv11_2(v2) or pool6(v1) as last layer')
 parser.add_argument('--basenet', default='vgg16_reducedfc.pth', help='pretrained base model')
-parser.add_argument('--dataset', default='ucf24', help='pretrained base model')
+parser.add_argument('--dataset', default='oku19', help='pretrained base model')
 parser.add_argument('--ssd_dim', default=300, type=int, help='Input Size for SSD') # only support 300 now
 parser.add_argument('--input_type', default='rgb', type=str, help='INput tyep default rgb can take flow as well')
 parser.add_argument('--jaccard_threshold', default=0.5, type=float, help='Min Jaccard index for matching')
@@ -189,7 +189,7 @@ def main():
     for iteration in [int(itr) for itr in args.eval_iter.split(',')]:
         log_file = open(args.save_root + 'cache/' + exp_name + "/testing-{:d}.log".format(iteration), "w", 1)
         log_file.write(exp_name + '\n')
-        trained_model_path = args.save_root + 'cache/' + exp_name + '/ssd300_ucf24_' + repr(iteration) + '.pth'
+        trained_model_path = args.save_root + 'cache/' + exp_name + '/ssd300_oku20_' + repr(iteration) + '.pth'
         log_file.write(trained_model_path+'\n')
         num_classes = len(CLASSES) + 1  #7 +1 background
         net = build_ssd('test', 512, num_classes) # initialize SSD
