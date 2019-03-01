@@ -193,6 +193,7 @@ def main():
         trained_model_path = args.save_root + 'cache/' + exp_name + '/ssd300_oku20_' + repr(iteration) + '.pth'
         log_file.write(trained_model_path+'\n')
         num_classes = len(CLASSES) + 1  #7 +1 background
+        args.num_classes = num_classes
         net = build_ssd('test', 512, num_classes) # initialize SSD
         net.load_state_dict(torch.load(trained_model_path))
         net.eval()
