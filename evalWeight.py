@@ -86,7 +86,7 @@ def main():
 
     ## Define the experiment Name will used to same directory and ENV for visdom
     args.exp_name = 'CONV-SSD-{}-{}-bs-{}-{}-lr-{:05d}'.format(args.dataset,
-                args.input_type, args.batch_size, args.basenet[:-14], int(args.lr*100000))
+                args.input_type, args.batch_size, args.basenet[:-4], int(args.lr*100000))
 
     args.save_root += args.dataset+'/'
     args.save_root = args.save_root+'cache/'+args.exp_name+'/'
@@ -156,7 +156,7 @@ def main():
     cls_losses = AverageMeter()
 
 
-    log_file = open(args.save_root+"evalWeights.log", "w", 1)
+    log_file = open(args.save_root+"evalWeights_"+args.basenet[:-4]+".log", "w", 1)
     log_file.write(args.exp_name+'\n')
     for arg in vars(args):
         print(arg, getattr(args, arg))
