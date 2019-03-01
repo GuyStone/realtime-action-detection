@@ -94,10 +94,19 @@ def main():
     if not os.path.isdir(args.save_root):
         os.makedirs(args.save_root)
 
-    net = build_ssd('test', args.ssd_dim, args.num_classes)
-
+    trained_model_path = torch.load(args.data_root +'/train_data/' + args.basenet)
+    print('Loading base network...')
+    net = build_ssd('test', 300, num_classes)  # initialize SSD
+    net.load_state_dict(torch.load(trained_model_path))
+    net.eval()
     if args.cuda:
         net = net.cuda()
+        cudnn.benchmark = True
+
+    # net = build_ssd('test', args.ssd_dim, args.num_classes)
+    #
+    # if args.cuda:
+    #     net = net.cuda()
 
     def xavier(param):
         init.xavier_uniform(param)
@@ -114,33 +123,33 @@ def main():
     # net.loc.apply(weights_init)
     # net.conf.apply(weights_init)
 
-    if args.input_type == 'fastOF':
-        print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + '/train_data/brox_wieghts.pth')
-        pretrained_weights = args.data_root + '/train_data/brox_wieghts.pth'
-        print('Loading base network...')
-        net.load_state_dict(torch.load(pretrained_weights))
-    else:
-        trained_weights = torch.load(args.data_root +'/train_data/' + args.basenet)
-        print('Loading base network...')
-        net.load_state_dict(torch.load(trained_weights))
+    # if args.input_type == 'fastOF':
+    #     print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + '/train_data/brox_wieghts.pth')
+    #     pretrained_weights = args.data_root + '/train_data/brox_wieghts.pth'
+    #     print('Loading base network...')
+    #     net.load_state_dict(torch.load(pretrained_weights))
+    # else:
+    #     trained_weights = torch.load(args.data_root +'/train_data/' + args.basenet)
+    #     print('Loading base network...')
+    #     net.load_state_dict(torch.load(trained_weights))
 
     # args.data_root += args.dataset + '/'
-
-    parameter_dict = dict(net.named_parameters()) # Get parmeter of network in dictionary format wtih name being key
-    params = []
+    #
+    # parameter_dict = dict(net.named_parameters()) # Get parmeter of network in dictionary format wtih name being key
+    # params = []
 
     #Set different learning rate to bias layers and set their weight_decay to 0
-    for name, param in parameter_dict.items():
-        if name.find('bias') > -1:
-            print(name, 'layer parameters will be trained @ {}'.format(args.lr*2))
-            params += [{'params': [param], 'lr': args.lr*2, 'weight_decay': 0}]
-        else:
-            print(name, 'layer parameters will be trained @ {}'.format(args.lr))
-            params += [{'params':[param], 'lr': args.lr, 'weight_decay':args.weight_decay}]
+    # for name, param in parameter_dict.items():
+    #     if name.find('bias') > -1:
+    #         print(name, 'layer parameters will be trained @ {}'.format(args.lr*2))
+    #         params += [{'params': [param], 'lr': args.lr*2, 'weight_decay': 0}]
+    #     else:
+    #         print(name, 'layer parameters will be trained @ {}'.format(args.lr))
+    #         params += [{'params':[param], 'lr': args.lr, 'weight_decay':args.weight_decay}]
 
-    optimizer = optim.SGD(params, lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-    criterion = MultiBoxLoss(args.num_classes, args.ssd_dim, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
-    scheduler = MultiStepLR(optimizer, milestones=args.stepvalues, gamma=args.gamma)
+    # optimizer = optim.SGD(params, lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    # criterion = MultiBoxLoss(args.num_classes, args.ssd_dim, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
+    # scheduler = MultiStepLR(optimizer, milestones=args.stepvalues, gamma=args.gamma)
     # train(args, net, optimizer, criterion, scheduler)
 
     print('Loading Val Dataset...')
