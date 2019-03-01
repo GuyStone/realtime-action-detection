@@ -178,7 +178,7 @@ def test_net(args, net, save_root, exp_name, input_type, dataset, iteration, num
 def main():
     args.cfg = v[str(args.ssd_dim)]
     means = (104, 117, 123)  # only support voc now
-
+    args.eval_iter = eval_iter;
     exp_name = 'CONV-SSD-{}-{}-bs-{}-{}-lr-{:05d}'.format(args.dataset, args.input_type,
                             args.batch_size, args.basenet[:-14], int(args.lr * 100000))
 
