@@ -202,11 +202,12 @@ def main():
         print('Finished loading model %d !' % iteration)
         # Load dataset
         dataset = OKU19Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, means), AnnotationTransform(), input_type=args.input_type, full_test=False)
+        data_loader = data.DataLoader(val_dataset, args.batch_size, num_workers=args.num_workers, shuffle=False, collate_fn=detection_collate, pin_memory=True)
         # evaluation
         torch.cuda.synchronize()
         tt0 = time.perf_counter()
         log_file.write('Testing net \n')
-        mAP, ap_all, ap_strs = validate(args, net, val_data_loader, val_dataset, iteration, iou_thresh=args.iou_thresh)
+        mAP, ap_all, ap_strs = validate(args, net, data_loader, dataset, iteration, iou_thresh=args.iou_thresh)
 
         for ap_str in ap_strs:
             print(ap_str)
