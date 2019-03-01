@@ -21,8 +21,9 @@ class Detect(Function):
         self.conf_thresh = conf_thresh
         cfg = v[str(size)]
         self.variance = cfg['variance']
-        self.output.zero_()
-        self.output = torch.zeros(1, self.num_classes, self.top_k, 5)
+        # self.output.zero_()
+        # self.output = torch.zeros(1, self.num_classes, self.top_k, 5)
+
 
     def forward(self, loc_data, conf_data, prior_data):
         """
@@ -43,7 +44,7 @@ class Detect(Function):
             conf_preds = conf_data.view(num, num_priors,
                                         self.num_classes).transpose(2, 1)
             self.output.expand(num, self.num_classes, self.top_k, 5)
-            
+
         output = torch.zeros(num, self.num_classes, self.top_k, 5)
         conf_preds = conf_data.view(num, num_priors,
                                     self.num_classes).transpose(2, 1)
