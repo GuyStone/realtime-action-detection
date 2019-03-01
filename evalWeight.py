@@ -141,7 +141,7 @@ def main():
     optimizer = optim.SGD(params, lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
     criterion = MultiBoxLoss(args.num_classes, args.ssd_dim, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
     scheduler = MultiStepLR(optimizer, milestones=args.stepvalues, gamma=args.gamma)
-    train(args, net, optimizer, criterion, scheduler)
+    # train(args, net, optimizer, criterion, scheduler)
 
     print('Loading Val Dataset...')
     val_dataset = OKU19Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, args.means),
