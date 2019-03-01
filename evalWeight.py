@@ -96,7 +96,7 @@ def main():
 
     trained_model_path = torch.load(args.data_root +'/train_data/' + args.basenet)
     print('Loading base network...')
-    net = build_ssd('test', 300, num_classes)  # initialize SSD
+    net = build_ssd('test', 512, num_classes)  # initialize SSD
     net.load_state_dict(torch.load(trained_model_path))
     net.eval()
     if args.cuda:
