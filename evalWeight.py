@@ -120,9 +120,9 @@ def main():
         print('Loading base network...')
         net.load_state_dict(torch.load(pretrained_weights))
     else:
-        vgg_weights = torch.load(args.data_root +'/train_data/' + args.basenet)
+        trained_weights = torch.load(args.data_root +'/train_data/' + args.basenet)
         print('Loading base network...')
-        net.vgg.load_state_dict(vgg_weights)
+        net.load_state_dict(torch.load(trained_weights))
 
     # args.data_root += args.dataset + '/'
 
