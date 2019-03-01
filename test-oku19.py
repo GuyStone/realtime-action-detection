@@ -201,7 +201,7 @@ def main():
             cudnn.benchmark = True
         print('Finished loading model %d !' % iteration)
         # Load dataset
-        dataset = OKU19Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, args.means), AnnotationTransform(), input_type=args.input_type, full_test=False)
+        dataset = OKU19Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, means), AnnotationTransform(), input_type=args.input_type, full_test=False)
         # evaluation
         torch.cuda.synchronize()
         tt0 = time.perf_counter()
