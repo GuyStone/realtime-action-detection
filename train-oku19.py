@@ -102,6 +102,7 @@ def main():
     #     net = net.cuda()
     if args.cuda:
         net = torch.nn.DataParallel(net)
+        net = net.cuda()
         cudnn.benchmark = True
 
     def xavier(param):
