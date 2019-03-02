@@ -96,13 +96,12 @@ def main():
     if not os.path.isdir(args.save_root):
         os.makedirs(args.save_root)
 
-    net = build_ssd('train', args.ssd_dim, args.num_classes)
-
+    ssd_net = build_ssd('train', args.ssd_dim, args.num_classes)
+    net = ssd_net
     # if args.cuda:
     #     net = net.cuda()
-    if args.cuda:
-        net = torch.nn.DataParallel(net)
-        net = net.cuda()
+
+        net = torch.nn.DataParallel(ssd_net)
         cudnn.benchmark = True
 
     def xavier(param):
@@ -113,22 +112,25 @@ def main():
             xavier(m.weight.data)
             m.bias.data.zero_()
 
-
-    print('Initializing weights for extra layers and HEADs...')
-    # initialize newly added layers' weights with xavier method
-    net.extras.apply(weights_init)
-    net.loc.apply(weights_init)
-    net.conf.apply(weights_init)
-
     if args.input_type == 'fastOF':
         print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + '/train_data/brox_wieghts.pth')
         pretrained_weights = args.data_root + '/train_data/brox_wieghts.pth'
         print('Loading base network...')
-        net.load_state_dict(torch.load(pretrained_weights))
+        ssd_net.load_state_dict(torch.load(pretrained_weights))
     else:
         vgg_weights = torch.load(args.data_root +'/train_data/' + args.basenet)
         print('Loading base network...')
-        net.vgg.load_state_dict(vgg_weights)
+        ssd_net.vgg.load_state_dict(vgg_weights)
+
+    if args.cuda:
+        net = net.cuda()
+
+    print('Initializing weights for extra layers and HEADs...')
+    # initialize newly added layers' weights with xavier method
+    ssd_net.extras.apply(weights_init)
+    ssd_net.loc.apply(weights_init)
+    ssd_net.conf.apply(weights_init)
+
 
     # args.data_root += args.dataset + '/'
 
