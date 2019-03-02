@@ -15,6 +15,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.init as init
+import torch.backends.cudnn as cudnn
 import argparse
 from torch.autograd import Variable
 import torch.utils.data as data
