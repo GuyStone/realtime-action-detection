@@ -199,11 +199,9 @@ def main():
         net = ssd_net
         # if args.cuda:
         #     net = net.cuda()
+        net.load_state_dict(torch.load(trained_model_path))
         if args.cuda:
             net = torch.nn.DataParallel(ssd_net)
-            cudnn.benchmark = True
-
-        net.load_state_dict(torch.load(trained_model_path))
         net.eval()
         if args.cuda:
             net = net.cuda()
