@@ -84,6 +84,7 @@ class AnnotationTransform(object):
                     label_idx = self.class_to_ind[t[10]]
                     bndbox.append(label_idx)
                     res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
+        print(res)
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
 
@@ -113,7 +114,7 @@ class OKU19Detection(data.Dataset):
         self.root = root
         self.CLASSES = CLASSES
         self.image_set = image_set
-        self.transform = transform
+        nsform = transform
         self.target_transform = target_transform
         self.name = dataset_name
         self._annopath = os.path.join(root, image_set+'-Set/Labels/SingleActionLabels' + '%s.csv')
