@@ -69,7 +69,7 @@ class AnnotationTransform(object):
             pts = [t[1], t[2], t[3], t[4]]
             '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
             bndbox = []
-            print(t[10])
+            # print(t[10])
             for i in range(4):
                 cur_pt = max(0,int(pts[i]) - 1)
                 scale =  width if i % 2 == 0 else height
