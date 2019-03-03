@@ -16,12 +16,12 @@ import numpy as np
 #         'SalsaSpin','SkateBoarding', 'Skiing', 'Skijet', 'SoccerJuggling',
 #         'Surfing', 'TennisSwing', 'TrampolineJumping', 'VolleyballSpiking', 'WalkingWithDog')
 
-# CLASSES = (  # always index 0
-#         'Calling', 'Carrying', 'Drinking', 'Handshaking', 'Hugging', 'Lying', 'Pushing/Pulling',
-#          'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
-
 CLASSES = (  # always index 0
-        'Person',)
+        'Calling', 'Carrying', 'Drinking', 'Hand,Shaking', 'Hugging', 'Lying', 'Pushing/Pulling',
+         'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
+
+# CLASSES = (  # always index 0
+#         'Person',)
 
 
 class AnnotationTransform(object):
@@ -75,7 +75,7 @@ class AnnotationTransform(object):
                 cur_pt = min(scale, int(pts[i]))
                 cur_pt = float(cur_pt) / scale
                 bndbox.append(cur_pt)
-            label_idx = self.class_to_ind[t[9]]
+            label_idx = self.class_to_ind[t[10]]
             bndbox.append(label_idx)
             res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]

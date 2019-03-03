@@ -100,9 +100,9 @@ def main():
     net = ssd_net
     # if args.cuda:
     #     net = net.cuda()
-    if args.cuda:
-        net = torch.nn.DataParallel(ssd_net)
-        cudnn.benchmark = True
+    # if args.cuda:
+    #     net = torch.nn.DataParallel(ssd_net)
+    #     cudnn.benchmark = True
 
     def xavier(param):
         init.xavier_uniform(param)
