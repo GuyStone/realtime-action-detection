@@ -17,7 +17,7 @@ import numpy as np
 #         'Surfing', 'TennisSwing', 'TrampolineJumping', 'VolleyballSpiking', 'WalkingWithDog')
 
 CLASSES = (  # always index 0
-        'Calling', 'Carrying', 'Drinking', 'Hand,Shaking', 'Hugging', 'Lying', 'Pushing/Pulling',
+        'Calling', 'Carrying', 'Drinking', '"Hand', 'Hugging', 'Lying', 'Pushing/Pulling',
          'Reading', 'Running', 'Sitting', 'Standing', 'Walking', '')
 
 # CLASSES = (  # always index 0
