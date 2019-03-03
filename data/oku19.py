@@ -114,7 +114,7 @@ class OKU19Detection(data.Dataset):
         self.root = root
         self.CLASSES = CLASSES
         self.image_set = image_set
-        nsform = transform
+        self.transform = transform
         self.target_transform = target_transform
         self.name = dataset_name
         self._annopath = os.path.join(root, image_set+'-Set/Labels/SingleActionLabels' + '%s.csv')
