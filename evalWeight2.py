@@ -278,7 +278,6 @@ def validate(args, net, val_data_loader, val_dataset, iteration_num, iou_thresh=
             print(loc_data[b])
             print(loc_data[b].data)
             print("prior_data.data")
-            print(prior_data)
             print(prior_data.data)
             print(args.cfg['variance'])
             decoded_boxes = decode(loc_data[b].data, prior_data.data, args.cfg['variance']).clone()
