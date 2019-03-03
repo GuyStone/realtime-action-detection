@@ -202,7 +202,7 @@ def main():
         if args.cuda:
             net = torch.nn.DataParallel(ssd_net)
 
-        net.module.load_state_dict(torch.load(trained_model_path))
+        net.load_state_dict(torch.load(trained_model_path))
         net.eval()
         if args.cuda:
             net = net.cuda()
