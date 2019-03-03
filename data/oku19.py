@@ -66,19 +66,21 @@ class AnnotationTransform(object):
 
         res = []
         for t in target:
-            pts = [t[1], t[2], t[3], t[4]]
-            '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
-            bndbox = []
-            # print(t[10])
-            for i in range(4):
-                cur_pt = max(0,int(pts[i]) - 1)
-                scale =  width if i % 2 == 0 else height
-                cur_pt = min(scale, int(pts[i]))
-                cur_pt = float(cur_pt) / scale
-                bndbox.append(cur_pt)
-            label_idx = self.class_to_ind[t[10]]
-            bndbox.append(label_idx)
-            res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
+            if t[6] == 0:
+                if t[10] != '':
+                    pts = [t[1], t[2], t[3], t[4]]
+                    '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
+                    bndbox = []
+                    # print(t[10])
+                    for i in range(4):
+                        cur_pt = max(0,int(pts[i]) - 1)
+                        scale =  width if i % 2 == 0 else height
+                        cur_pt = min(scale, int(pts[i]))
+                        cur_pt = float(cur_pt) / scale
+                        bndbox.append(cur_pt)
+                    label_idx = self.class_to_ind[t[10]]
+                    bndbox.append(label_idx)
+                    res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
 
