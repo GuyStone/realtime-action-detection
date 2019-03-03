@@ -188,13 +188,21 @@ def main():
     args.listid = '01' ## would be usefull in JHMDB-21
     print('Exp name', exp_name, args.listid)
     for iteration in [int(itr) for itr in args.eval_iter.split(',')]:
-        log_file = open(args.save_root + 'cache/' + exp_name + "/testing-{:d}.log".format(iteration), "w", 1)
+        log_file = open(args.save_root + 'cache/' + exp_name + "/evalWeights-{:d}.log".format(iteration), "w", 1)
         log_file.write(exp_name + '\n')
         trained_model_path = args.save_root + 'cache/' + exp_name + '/ssd300_oku20_' + repr(iteration) + '.pth'
         log_file.write(trained_model_path+'\n')
         num_classes = len(CLASSES) + 1  #7 +1 background
         args.num_classes = num_classes
-        net = build_ssd('test', 512, num_classes) # initialize SSD
+        ssd_net = build_ssd('test', 512, num_classes) # initialize SSD
+
+        net = ssd_net
+        # if args.cuda:
+        #     net = net.cuda()
+        if args.cuda:
+            net = torch.nn.DataParallel(ssd_net)
+            cudnn.benchmark = True
+
         net.load_state_dict(torch.load(trained_model_path))
         net.eval()
         if args.cuda:
@@ -214,6 +222,7 @@ def main():
             print(ap_str)
             log_file.write(ap_str+'\n')
         ptr_str = '\nMEANAP:::=>'+str(mAP)+'\n'
+        print(prt_str)
         torch.cuda.synchronize()
         prt_str = '\nValidation TIME::: {:0.2f}'.format(time.perf_counter() - tt0)
         print(prt_str)
