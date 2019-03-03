@@ -201,12 +201,14 @@ def main():
         #     net = net.cuda()
         if args.cuda:
             net = torch.nn.DataParallel(ssd_net)
+            net = net.cuda()
+            cudnn.benchmark = True
 
         net.load_state_dict(torch.load(trained_model_path))
         net.eval()
-        if args.cuda:
-            net = net.cuda()
-            cudnn.benchmark = True
+        # if args.cuda:
+        #     net = net.cuda()
+        #     cudnn.benchmark = True
         print('Finished loading model %d !' % iteration)
         # Load dataset
         dataset = OKU19Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, means), AnnotationTransform(), input_type=args.input_type, full_test=False)
@@ -275,7 +277,6 @@ def validate(args, net, val_data_loader, val_dataset, iteration_num, iou_thresh=
             gt[:,3] *= height
             gt_boxes.append(gt)
             print("loc_data[b].data")
-            print(loc_data[b])
             print(loc_data[b].data)
             print("prior_data.data")
             print(prior_data.data)
