@@ -67,9 +67,10 @@ class AnnotationTransform(object):
         res = []
         for t in target:
             print(t)
-            if t[6] == 0:
+            if t[6] == '0':
+                print("accepted 0")
                 if t[10] != '':
-                    print("accepted")
+                    print("accepted space")
                     pts = [t[1], t[2], t[3], t[4]]
                     '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
                     bndbox = []
