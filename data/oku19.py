@@ -102,16 +102,14 @@ class AnnotationTransform(object):
                 bndbox.append(cur_pt)
             label_idx = self.class_to_ind[t[10]]
             bndbox.append(12)
-            # bndbox.append(0)
-            # bndbox.append(0)
-            # bndbox.append(0)
-            # bndbox.append(0)
-            # bndbox.append(12)
             res += [bndbox]
+            print("adding stuff")
+            print(res)
             # print(np.array(res)[:,4])
             # print(np.array(res)[:,:4])
             # exit(0)
         print(res)
+        print("returning stuff")
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
 
