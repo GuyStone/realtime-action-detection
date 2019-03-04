@@ -90,7 +90,7 @@ class AnnotationTransform(object):
             print(np.array(res)[:,:4])
         except IndexError:
             print("\nINDEX ERROR HERE !\n")
-            pts = [0,0,960,540]
+            pts = ['0','0','960','540']
             '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
             bndbox = []
             # print(t[10])
