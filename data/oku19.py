@@ -95,9 +95,9 @@ class AnnotationTransform(object):
             # bndbox.append(0)
             # bndbox.append(0)
             # bndbox.append(12)
-            res += [[0,0,0,0,12]]
-            print(np.array(res)[:,4])
-            print(np.array(res)[:,:4])
+            res += [[0,0,960,540,12]]
+            # print(np.array(res)[:,4])
+            # print(np.array(res)[:,:4])
             # exit(0)
         print(res)
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
