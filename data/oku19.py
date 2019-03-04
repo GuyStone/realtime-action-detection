@@ -147,7 +147,6 @@ class OKU19Detection(data.Dataset):
 
     def pull_item(self, index):
         img_id = self.ids[index]
-        print(img_id)
         # needs to open csv file
         target = []
         with open(self._annopath % img_id, 'r') as csvfile:
