@@ -91,6 +91,8 @@ class AnnotationTransform(object):
         except IndexError:
             print("\nINDEX ERROR HERE !\n")
             res += [0,0,0,0,12]
+            print(np.array(res)[:,4])
+            print(np.array(res)[:,:4])
             # exit(0)
         print(res)
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
