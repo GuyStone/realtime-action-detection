@@ -81,7 +81,7 @@ class AnnotationTransform(object):
                     label_idx = self.class_to_ind[t[10]]
                     bndbox.append(label_idx)
                     res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
-        if len(bndbox) == 0:
+        if len(res) == 0:
             pts = ['0','0','960','540']
             bndbox = []
             for i in range(4):
