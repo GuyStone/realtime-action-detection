@@ -66,20 +66,33 @@ class AnnotationTransform(object):
 
         res = []
         for t in target:
-            if t[10] != 'sdsd':
-                pts = [t[1], t[2], t[3], t[4]]
-                '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
-                bndbox = []
-                # print(t[10])
-                for i in range(4):
-                    cur_pt = max(0,int(pts[i]) - 1)
-                    scale =  width if i % 2 == 0 else height
-                    cur_pt = min(scale, int(pts[i]))
-                    cur_pt = float(cur_pt) / scale
-                    bndbox.append(cur_pt)
-                label_idx = self.class_to_ind[t[10]]
-                bndbox.append(label_idx)
-                res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
+            if t[6] == '0':
+                if t[10] != '':
+                    pts = [t[1], t[2], t[3], t[4]]
+                    '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
+                    bndbox = []
+                    # print(t[10])
+                    for i in range(4):
+                        cur_pt = max(0,int(pts[i]) - 1)
+                        scale =  width if i % 2 == 0 else height
+                        cur_pt = min(scale, int(pts[i]))
+                        cur_pt = float(cur_pt) / scale
+                        bndbox.append(cur_pt)
+                    label_idx = self.class_to_ind[t[10]]
+                    bndbox.append(label_idx)
+                    res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
+        if len(bndbox) == 0:
+            pts = ['0','0','960','540']
+            for i in range(4):
+                cur_pt = max(0,int(pts[i]) - 1)
+                scale =  width if i % 2 == 0 else height
+                cur_pt = min(scale, int(pts[i]))
+                cur_pt = float(cur_pt) / scale
+                bndbox.append(cur_pt)
+            bndbox.append(12)
+            res += [bndbox]
+        # 
+        #     print("\nINDEX ERROR HERE !\n")
         # try :
         #     print(np.array(res)[:,4])
         #     print(np.array(res)[:,:4])
@@ -97,9 +110,9 @@ class AnnotationTransform(object):
         #         bndbox.append(cur_pt)
         #     bndbox.append(12)
         #     res += [bndbox]
-            # print(np.array(res)[:,4])
-            # print(np.array(res)[:,:4])
-            # exit(0)
+        #     # print(np.array(res)[:,4])
+        #     # print(np.array(res)[:,:4])
+        #     # exit(0)
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
 
