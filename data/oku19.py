@@ -18,7 +18,7 @@ import numpy as np
 
 CLASSES = (  # always index 0
         'Calling', 'Carrying', 'Drinking', '"Hand', 'Hugging', 'Lying', 'Pushing/Pulling',
-         'Reading', 'Running', 'Sitting', 'Standing', 'Walking', '')
+         'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
 
 # CLASSES = (  # always index 0
 #         'Person',)
@@ -90,7 +90,8 @@ class AnnotationTransform(object):
             print(np.array(res)[:,:4])
         except IndexError:
             print("\nINDEX ERROR HERE !\n")
-            exit(0)
+            res += [0,0,0,0,12]
+            # exit(0)
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
 
