@@ -92,6 +92,7 @@ class AnnotationTransform(object):
             print("\nINDEX ERROR HERE !\n")
             res += [0,0,0,0,12]
             # exit(0)
+        print(res)
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
 
