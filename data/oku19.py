@@ -90,7 +90,12 @@ class AnnotationTransform(object):
             print(np.array(res)[:,:4])
         except IndexError:
             print("\nINDEX ERROR HERE !\n")
-            res += [0,0,0,0,12]
+            # bndbox.append(0)
+            # bndbox.append(0)
+            # bndbox.append(0)
+            # bndbox.append(0)
+            # bndbox.append(12)
+            res += [[0,0,0,0,12]]
             print(np.array(res)[:,4])
             print(np.array(res)[:,:4])
             # exit(0)
