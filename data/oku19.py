@@ -85,8 +85,8 @@ class AnnotationTransform(object):
                     bndbox.append(label_idx)
                     res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
         try :
-            # print(np.array(res)[:,4])
-            # print(np.array(res)[:,:4])
+            print(np.array(res)[:,4])
+            print(np.array(res)[:,:4])
         except IndexError:
             print("\nINDEX ERROR HERE !\n")
             pts = ['0','0','960','540']
