@@ -83,6 +83,7 @@ class AnnotationTransform(object):
                     res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
         if len(bndbox) == 0:
             pts = ['0','0','960','540']
+            bndbox = []
             for i in range(4):
                 cur_pt = max(0,int(pts[i]) - 1)
                 scale =  width if i % 2 == 0 else height
@@ -91,7 +92,7 @@ class AnnotationTransform(object):
                 bndbox.append(cur_pt)
             bndbox.append(12)
             res += [bndbox]
-        # 
+        #
         #     print("\nINDEX ERROR HERE !\n")
         # try :
         #     print(np.array(res)[:,4])
