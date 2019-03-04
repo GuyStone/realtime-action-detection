@@ -158,7 +158,7 @@ class OKU19Detection(data.Dataset):
         # print("imgpath: " + self._imgpath)
         self.ids = list()
         # root = /vol/guy/oku19/1280x720
-        for line in open(os.path.join(root, 'splitfiles', image_set + 'val.txt')):
+        for line in open(os.path.join(root, 'splitfiles', image_set + 'val2.txt')):
             self.ids.append(line.strip())
 
         # for (year, name) in image_sets:
