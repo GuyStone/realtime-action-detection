@@ -66,21 +66,27 @@ class AnnotationTransform(object):
 
         res = []
         for t in target:
-            # if t[6] == '0':
-            #     if t[10] != '':
-            pts = [t[1], t[2], t[3], t[4]]
-            '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
-            bndbox = []
-            # print(t[10])
-            for i in range(4):
-                cur_pt = max(0,int(pts[i]) - 1)
-                scale =  width if i % 2 == 0 else height
-                cur_pt = min(scale, int(pts[i]))
-                cur_pt = float(cur_pt) / scale
-                bndbox.append(cur_pt)
-            label_idx = self.class_to_ind[t[10]]
-            bndbox.append(label_idx)
-            res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
+            if t[6] == '0':
+                if t[10] != '':
+                    pts = [t[1], t[2], t[3], t[4]]
+                    '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
+                    bndbox = []
+                    # print(t[10])
+                    for i in range(4):
+                        cur_pt = max(0,int(pts[i]) - 1)
+                        scale =  width if i % 2 == 0 else height
+                        cur_pt = min(scale, int(pts[i]))
+                        cur_pt = float(cur_pt) / scale
+                        bndbox.append(cur_pt)
+                    label_idx = self.class_to_ind[t[10]]
+                    bndbox.append(label_idx)
+                    res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
+        try :
+            print(np.array(res)[:,4])
+            print(np.array(res)[:,:4])
+        except IndexError:
+            print("\nINDEX ERROR HERE !\n")
+            exit(0)
         # if len(res) == 0:
         #     pts = ['0','0','960','540']
         #     bndbox = []
@@ -148,8 +154,8 @@ class OKU19Detection(data.Dataset):
         self.name = dataset_name
         self._annopath = os.path.join(root, image_set+'-Set/Labels/SingleActionLabels' + '%s.csv')
         self._imgpath = os.path.join(root, image_set+'-Set', input_type + '%s.jpg')
-        print("annopath: " + self._annopath)
-        print("imgpath: " + self._imgpath)
+        # print("annopath: " + self._annopath)
+        # print("imgpath: " + self._imgpath)
         self.ids = list()
         # root = /vol/guy/oku19/1280x720
         for line in open(os.path.join(root, 'splitfiles', image_set + 'val.txt')):
@@ -181,6 +187,7 @@ class OKU19Detection(data.Dataset):
 
     def pull_item(self, index):
         img_id = self.ids[index]
+        print(img_id)
         # needs to open csv file
         target = []
         with open(self._annopath % img_id, 'r') as csvfile:
