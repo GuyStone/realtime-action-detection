@@ -18,7 +18,7 @@ import numpy as np
 
 CLASSES = (  # always index 0
         'Calling', 'Carrying', 'Drinking', '"Hand', 'Hugging', 'Lying', 'Pushing/Pulling',
-         'Reading', 'Running', 'Sitting', 'Standing', 'Walking', '')
+         'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
 
 # CLASSES = (  # always index 0
 #         'Person',)
