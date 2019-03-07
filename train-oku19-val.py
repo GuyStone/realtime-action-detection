@@ -17,6 +17,7 @@ import torch.optim as optim
 import torch.nn.init as init
 import torch.backends.cudnn as cudnn
 import argparse
+import pdb
 from torch.autograd import Variable
 import torch.utils.data as data
 from data import v, OKU19Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
@@ -82,7 +83,7 @@ def main():
     args.num_classes = num_classes
     args.stepvalues = [int(val) for val in args.stepvalues.split(',')]
     args.loss_reset_step = 30
-    args.eval_step = 10000
+    args.eval_step = 2000
     args.print_step = 10
 
 
@@ -345,7 +346,9 @@ def validate(args, net, val_data_loader, val_dataset, iteration_num, iou_thresh=
         t1 = time.perf_counter()
 
         images, targets, img_indexs = next(batch_iterator)
+        # print(batch_size)
         batch_size = images.size(0)
+        # pdb.set_trace()
         height, width = images.size(2), images.size(3)
 
         if args.cuda:
