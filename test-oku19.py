@@ -67,7 +67,7 @@ def test_net(args, net, save_root, exp_name, input_type, dataset, iteration, num
     save_ids = []
     val_step = 250
     num_images = len(dataset)
-    video_list = dataset.video_list
+    # video_list = dataset.video_list
     det_boxes = [[] for _ in range(len(CLASSES))]
     gt_boxes = []
     print_time = True
