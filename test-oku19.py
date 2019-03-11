@@ -115,7 +115,7 @@ def test_net(args, net, save_root, exp_name, input_type, dataset, iteration, num
             index = img_indexs[b]
             annot_info = image_ids[index]
             split_annot_info = annot_info.split('/')
-            frame_num = splittext[2][:-4];
+            frame_num = split_annot_info[2][:-4];
             # '78'
             # video_id = annot_info[0];
             videoname = split_annot_info[1]
