@@ -29,7 +29,7 @@ parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Trai
 parser.add_argument('--version', default='v2', help='conv11_2(v2) or pool6(v1) as last layer')
 parser.add_argument('--basenet', default='vgg16_reducedfc.pth', help='pretrained base model')
 parser.add_argument('--dataset', default='oku19', help='pretrained base model')
-parser.add_argument('--ssd_dim', default=300, type=int, help='Input Size for SSD') # only support 300 now
+parser.add_argument('--ssd_dim', default=512, type=int, help='Input Size for SSD') # only support 300 now
 parser.add_argument('--input_type', default='rgb', type=str, help='INput tyep default rgb can take flow as well')
 parser.add_argument('--jaccard_threshold', default=0.5, type=float, help='Min Jaccard index for matching')
 parser.add_argument('--batch_size', default=32, type=int, help='Batch size for training')
@@ -114,8 +114,13 @@ def test_net(args, net, save_root, exp_name, input_type, dataset, iteration, num
             conf_scores = net.softmax(conf_preds[b]).data.clone()
             index = img_indexs[b]
             annot_info = image_ids[index]
+            split_annot_info = annot_info.split('/')
+            frame_num = splittext[2][:-4];
+            # '78'
+            # video_id = annot_info[0];
+            videoname = split_annot_info[1]
+            # '1.1.1'
 
-            frame_num = annot_info[1]; video_id = annot_info[0]; videoname = video_list[video_id]
             output_dir = frame_save_dir+videoname
             if not os.path.isdir(output_dir):
                 os.makedirs(output_dir)
@@ -190,7 +195,7 @@ def main():
     for iteration in [int(itr) for itr in args.eval_iter.split(',')]:
         log_file = open(args.save_root + 'cache/' + exp_name + "/testing-{:d}.log".format(iteration), "w", 1)
         log_file.write(exp_name + '\n')
-        trained_model_path = args.save_root + 'cache/' + exp_name + '/ssd300_oku20_' + repr(iteration) + '.pth'
+        trained_model_path = args.save_root + 'cache/' + exp_name + '/ssd512_oku20_' + repr(iteration) + '.pth'
         log_file.write(trained_model_path+'\n')
         num_classes = len(CLASSES) + 1  #7 +1 background
         net = build_ssd('test', 512, num_classes) # initialize SSD

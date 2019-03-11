@@ -67,19 +67,20 @@ class AnnotationTransform(object):
         res = []
         for t in target:
             if t[6] == '0':
-                if t[10] != '':
-                    pts = [t[1], t[2], t[3], t[4]]
-                    '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
-                    bndbox = []
-                    for i in range(4):
-                        cur_pt = max(0,int(pts[i]) - 1)
-                        scale =  width if i % 2 == 0 else height
-                        cur_pt = min(scale, int(pts[i]))
-                        cur_pt = float(cur_pt) / scale
-                        bndbox.append(cur_pt)
-                    label_idx = self.class_to_ind[t[10]]
-                    bndbox.append(label_idx)
-                    res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
+                if t[7] == '0':
+                    if t[10] != '':
+                        pts = [t[1], t[2], t[3], t[4]]
+                        '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
+                        bndbox = []
+                        for i in range(4):
+                            cur_pt = max(0,int(pts[i]) - 1)
+                            scale =  width if i % 2 == 0 else height
+                            cur_pt = min(scale, int(pts[i]))
+                            cur_pt = float(cur_pt) / scale
+                            bndbox.append(cur_pt)
+                        label_idx = self.class_to_ind[t[10]]
+                        bndbox.append(label_idx)
+                        res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
 
@@ -120,6 +121,13 @@ class OKU19Detection(data.Dataset):
         # root = /vol/guy/oku19/1280x720
         for line in open(os.path.join(root, 'splitfiles', image_set + 'val14.txt')):
             self.ids.append(line.strip())
+
+        # if self.image_set == 'train':
+        #     self.ids = trainlist
+        # elif self.image_set == 'test':
+        #     self.ids = testlist
+        # else:
+        #     print('spacify correct subset ')
 
         # for (year, name) in image_sets:
         #     rootpath = osp.join(self.root, 'VOC' + year)
