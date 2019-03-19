@@ -157,7 +157,7 @@ class OKU19Detection(data.Dataset):
         img_id = self.ids[index]
         # needs to open csv file
         target = []
-        if os.path.isfile(fname):
+        if os.path.isfile(self._annopath % img_id):
             with open(self._annopath % img_id, 'r') as csvfile:
                 spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
                 for row in spamreader:
