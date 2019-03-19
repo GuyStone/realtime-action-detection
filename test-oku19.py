@@ -58,7 +58,7 @@ else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
 
-def test_net(args, net, save_root, exp_name, input_type, dataset, iteration, num_classes, thresh=0.5 ):
+def test_net(args, net, save_root, exp_name, input_type, dataset, iteration, num_classes, thresh=args.iou_thresh ):
     """ Test a SSD network on an Action image database. """
 
     val_data_loader = data.DataLoader(dataset, args.batch_size, num_workers=args.num_workers,

@@ -112,8 +112,9 @@ class OKU19Detection(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.name = dataset_name
-        self._annopath = os.path.join(root, image_set+'-Set/Labels/SingleActionLabels' + '%s.csv')
+        self._annopath = os.path.join(root, image_set+'-Set/Labels/SingleActionTrackingLabels' + '%s.csv')
         self._imgpath = os.path.join(root, image_set+'-Set', input_type + '%s.jpg')
+        self._negpath = os.path.join(root, '%s.csv')
         # print("annopath: " + self._annopath)
         # print("imgpath: " + self._imgpath)
         self.ids = list()
@@ -156,10 +157,22 @@ class OKU19Detection(data.Dataset):
         img_id = self.ids[index]
         # needs to open csv file
         target = []
-        with open(self._annopath % img_id, 'r') as csvfile:
-            spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
-            for row in spamreader:
-                target.append(row)
+        if os.path.isfile(fname):
+            with open(self._annopath % img_id, 'r') as csvfile:
+                spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+                for row in spamreader:
+                    target.append(row)
+        else:
+            with open(self._negpath % 'negative', 'r') as csvfile:
+                spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+                for row in spamreader:
+                    target.append(row)
+
+
+#        with open(self._annopath % img_id, 'r') as csvfile:
+#            spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+#            for row in spamreader:
+#                target.append(row)
         img = cv2.imread(self._imgpath % img_id)
         height, width, channels = img.shape
 
