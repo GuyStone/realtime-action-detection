@@ -123,7 +123,7 @@ class OKU19Detection(data.Dataset):
         # print("imgpath: " + self._imgpath)
         self.ids = list()
         # root = /vol/guy/oku19/1280x720
-        for line in open(os.path.join(root, 'splitfiles', image_set + 'val14.txt')):
+        for line in open(os.path.join(root, 'splitfiles', image_set + 'valstandard.txt')):
             self.ids.append(line.strip())
 
         # if self.image_set == 'train':
