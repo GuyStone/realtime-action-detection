@@ -83,7 +83,7 @@ def main():
     args.num_classes = num_classes
     args.stepvalues = [int(val) for val in args.stepvalues.split(',')]
     args.loss_reset_step = 30
-    args.eval_step = 2000
+    args.eval_step = 5000
     args.print_step = 10
 
 
@@ -92,7 +92,7 @@ def main():
                 args.input_type, args.batch_size, args.basenet[:-14], int(args.lr*100000))
 
     args.save_root += args.dataset+'/'
-    args.save_root = args.save_root+'cache/'+args.exp_name+'/'
+    args.save_root = args.save_root+'human_cache/'+args.exp_name+'/'
 
     if not os.path.isdir(args.save_root):
         os.makedirs(args.save_root)
@@ -290,7 +290,7 @@ def train(args, net, optimizer, criterion, scheduler):
                 torch.cuda.synchronize()
                 tvs = time.perf_counter()
                 print('Saving state, iter:', iteration)
-                torch.save(net.state_dict(), args.save_root+'ssd300_oku20_' +
+                torch.save(net.state_dict(), args.save_root+'ssd512_oku19_' +
                            repr(iteration) + '.pth')
 
                 net.eval() # switch net to evaluation mode
