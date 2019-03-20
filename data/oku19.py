@@ -81,7 +81,7 @@ class AnnotationTransform(object):
                             cur_pt = min(scale, int(pts[i]))
                             cur_pt = float(cur_pt) / scale
                             bndbox.append(cur_pt)
-                        label_idx = self.class_to_ind[t[10]]
+                        label_idx = self.class_to_ind[t[9]]
                         bndbox.append(label_idx)
                         res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
