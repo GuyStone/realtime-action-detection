@@ -21,7 +21,7 @@ import numpy as np
 #          'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
 
 CLASSES = (  # always index 0
-        'Person')
+        'Person',)
 
 # CLASSES = (  # always index 0
 #         'Person',)
