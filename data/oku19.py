@@ -121,7 +121,7 @@ class OKU19Detection(data.Dataset):
         self._annopath = os.path.join(root, image_set+'-Set/Labels/SingleActionTrackingLabels' + '%s.csv')
         self._imgpath = os.path.join(root, image_set+'-Set', input_type + '%s.jpg')
         self._negpath = os.path.join(root, '%s.csv')
-        # print("annopath: " + self._annopath)
+        print("annopath: " + self._annopath)
         # print("imgpath: " + self._imgpath)
         self.ids = list()
         # root = /vol/guy/oku19/1280x720
