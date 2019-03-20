@@ -16,9 +16,12 @@ import numpy as np
 #         'SalsaSpin','SkateBoarding', 'Skiing', 'Skijet', 'SoccerJuggling',
 #         'Surfing', 'TennisSwing', 'TrampolineJumping', 'VolleyballSpiking', 'WalkingWithDog')
 
+# CLASSES = (  # always index 0
+#         'Calling', 'Carrying', 'Drinking', '"Hand', 'Hugging', 'Lying', 'Pushing/Pulling',
+#          'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
+
 CLASSES = (  # always index 0
-        'Calling', 'Carrying', 'Drinking', '"Hand', 'Hugging', 'Lying', 'Pushing/Pulling',
-         'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
+        'Person')
 
 # CLASSES = (  # always index 0
 #         'Person',)
