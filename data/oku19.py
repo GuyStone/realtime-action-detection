@@ -21,7 +21,7 @@ import numpy as np
 #          'Reading', 'Running', 'Sitting', 'Standing', 'Walking')
 
 CLASSES = (  # always index 0
-        'Person',)
+        'Person')
 
 # CLASSES = (  # always index 0
 #         'Person',)
@@ -81,10 +81,9 @@ class AnnotationTransform(object):
                             cur_pt = min(scale, int(pts[i]))
                             cur_pt = float(cur_pt) / scale
                             bndbox.append(cur_pt)
-                            print(t[9])
-                            print(self.class_to_ind[t[9]])
-                        label_idx = self.class_to_ind[t[9]]
-                        bndbox.append(label_idx)
+                        # label_idx = self.class_to_ind[t[9]]
+                        bndbox.append(0)
+                        # bndbox.append(label_idx)
                         res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
@@ -121,7 +120,7 @@ class OKU19Detection(data.Dataset):
         self._annopath = os.path.join(root, image_set+'-Set/Labels/SingleActionTrackingLabels' + '%s.csv')
         self._imgpath = os.path.join(root, image_set+'-Set', input_type + '%s.jpg')
         self._negpath = os.path.join(root, '%s.csv')
-        print("annopath: " + self._annopath)
+        # print("annopath: " + self._annopath)
         # print("imgpath: " + self._imgpath)
         self.ids = list()
         # root = /vol/guy/oku19/1280x720
