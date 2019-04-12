@@ -15,10 +15,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.init as init
+import torch.backends.cudnn as cudnn
 import argparse
+import pdb
 from torch.autograd import Variable
 import torch.utils.data as data
-from data import v, UCF24Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
+from data import v, OKU19Detection, AnnotationTransform, detection_collate, CLASSES, BaseTransform
 from utils.augmentations import SSDAugmentation
 from layers.modules import MultiBoxLoss
 from ssd import build_ssd
@@ -36,9 +38,8 @@ def str2bool(v):
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Training')
 parser.add_argument('--version', default='v2', help='conv11_2(v2) or pool6(v1) as last layer')
 parser.add_argument('--basenet', default='vgg16_reducedfc.pth', help='pretrained base model')
-parser.add_argument('--dataset', default='ucf24', help='pretrained base model')
+parser.add_argument('--dataset', default='oku19', help='pretrained base model')
 parser.add_argument('--ssd_dim', default=512, type=int, help='Input Size for SSD') # only support 300 now
-# parser.add_argument('--dim', default=512, type=int, help='Size of the input image, only support 300 or 512')
 parser.add_argument('--input_type', default='rgb', type=str, help='INput tyep default rgb options are [rgb,brox,fastOF]')
 parser.add_argument('--jaccard_threshold', default=0.5, type=float, help='Min Jaccard index for matching')
 parser.add_argument('--batch_size', default=32, type=int, help='Batch size for training')
@@ -82,8 +83,9 @@ def main():
     args.num_classes = num_classes
     args.stepvalues = [int(val) for val in args.stepvalues.split(',')]
     args.loss_reset_step = 30
-    args.eval_step = 10000
+    args.eval_step = 2000
     args.print_step = 10
+
 
     ## Define the experiment Name will used to same directory and ENV for visdom
     args.exp_name = 'CONV-SSD-{}-{}-bs-{}-{}-lr-{:05d}'.format(args.dataset,
@@ -95,10 +97,13 @@ def main():
     if not os.path.isdir(args.save_root):
         os.makedirs(args.save_root)
 
-    net = build_ssd(args.ssd_dim, args.num_classes)
-
-    if args.cuda:
-        net = net.cuda()
+    ssd_net = build_ssd('train', args.ssd_dim, args.num_classes)
+    net = ssd_net
+    # if args.cuda:
+    #     net = net.cuda()
+    # if args.cuda:
+    #     net = torch.nn.DataParallel(ssd_net)
+    #     cudnn.benchmark = True
 
     def xavier(param):
         init.xavier_uniform(param)
@@ -108,24 +113,27 @@ def main():
             xavier(m.weight.data)
             m.bias.data.zero_()
 
+    if args.input_type == 'fastOF':
+        print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + '/train_data/brox_wieghts.pth')
+        pretrained_weights = args.data_root + '/train_data/brox_wieghts.pth'
+        print('Loading base network...')
+        ssd_net.load_state_dict(torch.load(pretrained_weights))
+    else:
+        vgg_weights = torch.load(args.data_root +'/train_data/' + args.basenet)
+        print('Loading base network...')
+        ssd_net.vgg.load_state_dict(vgg_weights)
+
+    if args.cuda:
+        net = net.cuda()
 
     print('Initializing weights for extra layers and HEADs...')
     # initialize newly added layers' weights with xavier method
-    net.extras.apply(weights_init)
-    net.loc.apply(weights_init)
-    net.conf.apply(weights_init)
+    ssd_net.extras.apply(weights_init)
+    ssd_net.loc.apply(weights_init)
+    ssd_net.conf.apply(weights_init)
 
-    if args.input_type == 'fastOF':
-        print('Download pretrained brox flow trained model weights and place them at:::=> ',args.data_root + 'ucf24/train_data/brox_wieghts.pth')
-        pretrained_weights = args.data_root + 'ucf24/train_data/brox_wieghts.pth'
-        print('Loading base network...')
-        net.load_state_dict(torch.load(pretrained_weights))
-    else:
-        vgg_weights = torch.load(args.data_root +'ucf24/train_data/' + args.basenet)
-        print('Loading base network...')
-        net.vgg.load_state_dict(vgg_weights)
 
-    args.data_root += args.dataset + '/'
+    # args.data_root += args.dataset + '/'
 
     parameter_dict = dict(net.named_parameters()) # Get parmeter of network in dictionary format wtih name being key
     params = []
@@ -161,9 +169,9 @@ def train(args, net, optimizer, criterion, scheduler):
     cls_losses = AverageMeter()
 
     print('Loading Dataset...')
-    train_dataset = UCF24Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means),
+    train_dataset = OKU19Detection(args.data_root, args.train_sets, SSDAugmentation(args.ssd_dim, args.means),
                                    AnnotationTransform(), input_type=args.input_type)
-    val_dataset = UCF24Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, args.means),
+    val_dataset = OKU19Detection(args.data_root, 'test', BaseTransform(args.ssd_dim, args.means),
                                  AnnotationTransform(), input_type=args.input_type,
                                  full_test=False)
     epoch_size = len(train_dataset) // args.batch_size
@@ -282,7 +290,7 @@ def train(args, net, optimizer, criterion, scheduler):
                 torch.cuda.synchronize()
                 tvs = time.perf_counter()
                 print('Saving state, iter:', iteration)
-                torch.save(net.state_dict(), args.save_root+args.ssd_dim+'_ucf24_' +
+                torch.save(net.state_dict(), args.save_root+'ssd300_oku20_' +
                            repr(iteration) + '.pth')
 
                 net.eval() # switch net to evaluation mode
@@ -310,7 +318,7 @@ def train(args, net, optimizer, criterion, scheduler):
                 t0 = time.perf_counter()
                 prt_str = '\nValidation TIME::: {:0.3f}\n\n'.format(t0-tvs)
                 print(prt_str)
-                log_file.write(ptr_str)
+                # log_file.write(ptr_str)
 
     log_file.close()
 
@@ -338,7 +346,9 @@ def validate(args, net, val_data_loader, val_dataset, iteration_num, iou_thresh=
         t1 = time.perf_counter()
 
         images, targets, img_indexs = next(batch_iterator)
+        # print(batch_size)
         batch_size = images.size(0)
+        # pdb.set_trace()
         height, width = images.size(2), images.size(3)
 
         if args.cuda:

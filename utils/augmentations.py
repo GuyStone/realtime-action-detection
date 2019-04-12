@@ -1,11 +1,3 @@
-
-""" Agumentation code for SSD network
-
-Original author: Ellis Brown, Max deGroot for VOC dataset
-https://github.com/amdegroot/ssd.pytorch
-
-"""
-
 import torch
 from torchvision import transforms
 import cv2
@@ -111,11 +103,10 @@ class ToPercentCoords(object):
 
 class Resize(object):
     def __init__(self, size=300):
-        self.size = size
+        self.size = size if isinstance(size,tuple) else (size,size)
 
     def __call__(self, image, boxes=None, labels=None):
-        image = cv2.resize(image, (self.size,
-                                 self.size))
+        image = cv2.resize(image, self.size)
         return image, boxes, labels
 
 
@@ -233,7 +224,6 @@ class RandomSampleCrop(object):
             # sample a patch s.t. MIN jaccard w/ obj in .1,.3,.4,.7,.9
             (0.1, None),
             (0.3, None),
-            (0.5, None),
             (0.7, None),
             (0.9, None),
             # randomly sample a patch
@@ -274,12 +264,13 @@ class RandomSampleCrop(object):
                 # calculate IoU (jaccard overlap) b/t the cropped and gt boxes
                 overlap = jaccard_numpy(boxes, rect)
 
-                # is min and max overlap coniou.max() <= max_ioustraint satisfied? if not try again
-                if overlap.min() < min_iou or overlap.max() > max_iou:
+                # is min and max overlap constraint satisfied? if not try again
+                if overlap.min() < min_iou and max_iou < overlap.max():
                     continue
 
                 # cut the crop from the image
-                current_image = current_image[rect[1]:rect[3], rect[0]:rect[2], :]
+                current_image = current_image[rect[1]:rect[3], rect[0]:rect[2],
+                                              :]
 
                 # keep overlap with gt box IF center in sampled patch
                 centers = (boxes[:, :2] + boxes[:, 2:]) / 2.0

@@ -1,5 +1,8 @@
 #from .voc0712 import VOCDetection, AnnotationTransform, detection_collate, VOC_CLASSES
-from .ucf24 import UCF24Detection, AnnotationTransform, detection_collate, CLASSES
+# from .voc0712 import VOCDetection, AnnotationTransform, detection_collate, VOC_CLASSES
+from .kitti import KittiLoader, AnnotationTransform_kitti,Class_to_ind,KITTI_CLASSES
+from .ucf24 import UCF24Detection, UCF24AnnotationTransform, detection_collate, UCF24CLASSES
+from .oku19 import OKU19Detection, AnnotationTransform, detection_collate, CLASSES
 from .config import *
 import cv2
 import numpy as np

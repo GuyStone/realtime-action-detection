@@ -1,10 +1,3 @@
-""" Bounding box utilities
-
-Original author: Ellis Brown, Max deGroot for VOC dataset
-https://github.com/amdegroot/ssd.pytorch
-
-"""
-
 import torch
 
 def point_form(boxes):
@@ -62,7 +55,7 @@ def jaccard(box_a, box_b):
         box_a: (tensor) Ground truth bounding boxes, Shape: [num_objects,4]
         box_b: (tensor) Prior boxes from priorbox layers, Shape: [num_priors,4]
     Return:
-        jaccard overlap: (tensor) Shape: [box_a.size(0), box_b.size(0)]
+        jaccard overlap: (tensor) Shape: [num_objects, box_priors]
     """
     inter = intersect(box_a, box_b)
     area_a = ((box_a[:, 2]-box_a[:, 0]) *
@@ -79,10 +72,10 @@ def match(threshold, truths, priors, variances, labels, loc_t, conf_t, idx):
     corresponding to both confidence and location preds.
     Args:
         threshold: (float) The overlap threshold used when mathing boxes.
-        truths: (tensor) Ground truth boxes, Shape: [num_obj, num_priors].
+        truths: (tensor) Ground truth boxes, Shape: [num_obj, 4].
         priors: (tensor) Prior boxes from priorbox layers, Shape: [n_priors,4].
         variances: (tensor) Variances corresponding to each prior coord,
-            Shape: [num_priors, 4].
+            Shape: [2].
         labels: (tensor) All the class labels for the image, Shape: [num_obj].
         loc_t: (tensor) Tensor to be filled w/ endcoded location targets.
         conf_t: (tensor) Tensor to be filled w/ matched indices for conf preds.

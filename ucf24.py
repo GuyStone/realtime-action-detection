@@ -11,7 +11,7 @@ import torch.utils.data as data
 import cv2, pickle
 import numpy as np
 
-UCF24CLASSES = (  # always index 0
+CLASSES = (  # always index 0
         'Basketball', 'BasketballDunk', 'Biking', 'CliffDiving', 'CricketBowling', 'Diving', 'Fencing',
         'FloorGymnastics', 'GolfSwing', 'HorseRiding', 'IceDancing', 'LongJump', 'PoleVault', 'RopeClimbing',
         'SalsaSpin','SkateBoarding', 'Skiing', 'Skijet', 'SoccerJuggling',
@@ -34,8 +34,8 @@ class UCF24AnnotationTransform(object):
 
     def __init__(self, class_to_ind=None, keep_difficult=False):
         self.class_to_ind = class_to_ind or dict(
-            zip(UCF24CLASSES, range(len(UCF24CLASSES))))
-        self.ind_to_class = dict(zip(range(len(UCF24CLASSES)),UCF24CLASSES))
+            zip(CLASSES, range(len(CLASSES))))
+        self.ind_to_class = dict(zip(range(len(CLASSES)),CLASSES))
 
     def __call__(self, bboxs, labels, width, height):
         res = []
@@ -76,8 +76,8 @@ def make_lists(rootpath, imgtype, split=1, fulltest=False):
     with open(rootpath + 'splitfiles/pyannot.pkl','rb') as fff:
         database = pickle.load(fff)
 
-    train_action_counts = np.zeros(len(UCF24CLASSES), dtype=np.int32)
-    test_action_counts = np.zeros(len(UCF24CLASSES), dtype=np.int32)
+    train_action_counts = np.zeros(len(CLASSES), dtype=np.int32)
+    test_action_counts = np.zeros(len(CLASSES), dtype=np.int32)
 
     #4500ratios = np.asarray([1.1, 0.8, 4.7, 1.4, 0.9, 2.6, 2.2, 3.0, 3.0, 5.0, 6.2, 2.7,
     #                     3.5, 3.1, 4.3, 2.5, 4.5, 3.4, 6.7, 3.6, 1.6, 3.4, 0.6, 4.3])
@@ -144,7 +144,7 @@ def make_lists(rootpath, imgtype, split=1, fulltest=False):
                 testlist.append([vid, frame_num+1, np.asarray([9999]), np.zeros((1,4))])
 
     for actidx, act_count in enumerate(train_action_counts): # just to see the distribution of train and test sets
-        print('train {:05d} test {:05d} action {:02d} {:s}'.format(act_count, test_action_counts[actidx] , int(actidx), UCF24CLASSES[actidx]))
+        print('train {:05d} test {:05d} action {:02d} {:s}'.format(act_count, test_action_counts[actidx] , int(actidx), CLASSES[actidx]))
 
     newratios = train_action_counts/5000
     #print('new   ratios', newratios)
@@ -168,7 +168,7 @@ class UCF24Detection(data.Dataset):
         self.input_type = input_type
         input_type = input_type+'-images'
         self.root = root
-        self.CLASSES = UCF24CLASSES
+        self.CLASSES = CLASSES
         self.image_set = image_set
         self.transform = transform
         self.target_transform = target_transform
