@@ -1,15 +1,14 @@
 
 """ Adapted from:
+    @gurkirt realtime-action-detection https://github.com/gurkirt/realtime-action-detection
     @longcw faster_rcnn_pytorch: https://github.com/longcw/faster_rcnn_pytorch
     @rbgirshick py-faster-rcnn https://github.com/rbgirshick/py-faster-rcnn
     Which was adopated by: Ellis Brown, Max deGroot
     https://github.com/amdegroot/ssd.pytorch
 
     Further:
-    Updated by Gurkirt Singh for ucf101-24 dataset
-    Licensed under The MIT License [see LICENSE for details]
+    Updated by Guy Stone for okutama-action.org dataset
 """
-
 import os
 import torch
 import torch.nn as nn
