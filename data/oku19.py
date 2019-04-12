@@ -66,8 +66,8 @@ class AnnotationTransform(object):
 
         res = []
         for t in target:
-            if t[6] == '0':
-                if t[10] != '':
+            if t[6] == '0' and t[7] == '0':
+                if len(t) >= 11:
                     pts = [t[1], t[2], t[3], t[4]]
                     '''pts = ['xmin', 'ymin', 'xmax', 'ymax']'''
                     bndbox = []
@@ -80,6 +80,12 @@ class AnnotationTransform(object):
                     label_idx = self.class_to_ind[t[10]]
                     bndbox.append(label_idx)
                     res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
+        if not res:
+            bndbox = []
+            for i in range(4):
+                bndbox.append(0)
+            bndbox.append('Calling')
+            res += [bndbox]
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
 
@@ -119,7 +125,7 @@ class OKU19Detection(data.Dataset):
         # print("imgpath: " + self._imgpath)
         self.ids = list()
         # root = /vol/guy/oku19/1280x720
-        for line in open(os.path.join(root, 'splitfiles', image_set + 'val14.txt')):
+        for line in open(os.path.join(root, 'splitfiles', image_set + 'valfiltered12april.txt')):
             self.ids.append(line.strip())
 
         # if self.image_set == 'train':
@@ -146,6 +152,7 @@ class OKU19Detection(data.Dataset):
 
 
     def __getitem__(self, index):
+ #        print(index)
         im, gt, img_index = self.pull_item(index)
 
         return im, gt, img_index
@@ -169,10 +176,11 @@ class OKU19Detection(data.Dataset):
                     target.append(row)
 
 
-#        with open(self._annopath % img_id, 'r') as csvfile:
-#            spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
-#            for row in spamreader:
-#                target.append(row)
+#         with open(self._annopath % img_id, 'r') as csvfile:
+#             spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+#             for row in spamreader:
+#                 target.append(row)
+#        print(self._imgpath % img_id)
         img = cv2.imread(self._imgpath % img_id)
         height, width, channels = img.shape
 
