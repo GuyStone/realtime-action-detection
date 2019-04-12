@@ -1,4 +1,3 @@
-
 """ Adapted from:
     @gurkirt realtime-action-detection https://github.com/gurkirt/realtime-action-detection
     @longcw faster_rcnn_pytorch: https://github.com/longcw/faster_rcnn_pytorch
@@ -7,7 +6,8 @@
     https://github.com/amdegroot/ssd.pytorch
 
     Further:
-    Updated by Guy Stone for okutama-action.org dataset
+    Updated by Guy Stone for okutama-action.org dataset and SSD512.
+    Licensed under The MIT License [see LICENSE for details]
 """
 import os
 import torch

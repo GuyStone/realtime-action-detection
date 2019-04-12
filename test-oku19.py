@@ -8,6 +8,12 @@
     ---------------------------------------------------------
 """
 
+"""
+    Guy Stone
+    Code has been adapted for okutama-action dataset and SSD512.
+    ---------------------------------------------------------
+"""
+
 import torch
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
@@ -195,7 +201,7 @@ def main():
     for iteration in [int(itr) for itr in args.eval_iter.split(',')]:
         log_file = open(args.save_root + 'cache/' + exp_name + "/testing-{:d}.log".format(iteration), "w", 1)
         log_file.write(exp_name + '\n')
-        trained_model_path = args.save_root + 'cache/' + exp_name + '/ssd300_oku20_' + repr(iteration) + '.pth'
+        trained_model_path = args.save_root + 'cache/' + exp_name + '/ssd300_oku19_' + repr(iteration) + '.pth'
         log_file.write(trained_model_path+'\n')
         num_classes = len(CLASSES) + 1  #7 +1 background
         net = build_ssd('test', 512, num_classes) # initialize SSD

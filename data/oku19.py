@@ -1,4 +1,6 @@
-"""OKU19 Dataset Classes
+"""UCF24 Dataset Classes
+
+Author: Guy Stone for okutama-action.org dataset
 
 """
 
@@ -9,12 +11,6 @@ import torch
 import torch.utils.data as data
 import cv2, pickle
 import numpy as np
-
-# CLASSES = (  # always index 0
-#         'Basketball', 'BasketballDunk', 'Biking', 'CliffDiving', 'CricketBowling', 'Diving', 'Fencing',
-#         'FloorGymnastics', 'GolfSwing', 'HorseRiding', 'IceDancing', 'LongJump', 'PoleVault', 'RopeClimbing',
-#         'SalsaSpin','SkateBoarding', 'Skiing', 'Skijet', 'SoccerJuggling',
-#         'Surfing', 'TennisSwing', 'TrampolineJumping', 'VolleyballSpiking', 'WalkingWithDog')
 
 CLASSES = (  # always index 0
         'Calling', 'Carrying', 'Drinking', '"Hand', 'Hugging', 'Lying', 'Pushing/Pulling',
