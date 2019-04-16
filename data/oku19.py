@@ -1,4 +1,4 @@
-"""UCF24 Dataset Classes
+"""Okutama-Action Dataset Classes
 
 Author: Guy Stone for okutama-action.org dataset
 
@@ -123,28 +123,6 @@ class OKU19Detection(data.Dataset):
         # root = /vol/guy/oku19/1280x720
         for line in open(os.path.join(root, 'splitfiles', image_set + 'valfiltered12april.txt')):
             self.ids.append(line.strip())
-
-        # if self.image_set == 'train':
-        #     self.ids = trainlist
-        # elif self.image_set == 'test':
-        #     self.ids = testlist
-        # else:
-        #     print('spacify correct subset ')
-
-        # for (year, name) in image_sets:
-        #     rootpath = osp.join(self.root, 'VOC' + year)
-        #     for line in open(osp.join(rootpath, 'ImageSets', 'Main', name + '.txt')):
-        #         self.ids.append((rootpath, line.strip()))
-
-# TODO: make list has been removed.. make train test video lists another way..................
-        # trainlist, testlist, video_list = make_lists(root, input_type, split=1, fulltest=full_test)
-        # self.video_list = video_list
-        # if self.image_set == 'train':
-        #     self.ids = trainlist
-        # elif self.image_set == 'test':
-        #     self.ids = testlist
-        # else:
-        #     print('spacify correct subset ')
 
 
     def __getitem__(self, index):
