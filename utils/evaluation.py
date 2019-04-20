@@ -1,4 +1,3 @@
-
 """ Evaluation code based on VOC protocol
 
 Original author: Ellis Brown, Max deGroot for VOC dataset
@@ -152,4 +151,3 @@ def save_detection_framewise(det_boxes, image_ids, iteration):
                 line += '\n'
                 fid.write(line)
         fid.close()
-
