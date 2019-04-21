@@ -1,3 +1,99 @@
+# Real-time online Action Detection and SSD512 for okutama-action.org
+Please find the original Real-time online Action Detection (https://github.com/gurkirt/realtime-action-detection) instuctions below. This work has been extended to use SS512 and accept okutama-action dataset (https://github.com/miquelmarti/Okutama-Action)
+
+## Demo
+- A subset of the dataset is included for demo purposes. 
+- - demo-test-Set includes the whole of test video 1.1.8
+- - tiny-demo-test-Set includes 350 frames from test video 1.1.8
+- - micro-demo-test-Set includes 11 frames from test video 1.1.8
+The demos will include the RGP frames and labels, detections results and ground truth Tubes)
+- It can be download here (https://drive.google.com/open?id=1-xud1IMVWKqIOUveSlDxwAfvFfDdxg9l)
+- create a dataset folder, the examples will create `/datasets/oku19/960x540` on the `Desktop`.
+- On desktop this command will create the directory `mkdir -p datasets/oku19/960x540`
+
+##### produce frame-level detection
+To eval SSD using the test script simply specify the parameters listed in `test-oku19.py` as a flag or manually change them. for e.g.:
+-requires GPU, Dataset, Trained Weights.
+```Shell
+CUDA_VISIBLE_DEVICES=0 python3 test-oku19.py --data_root=/home/user/Desktop/datasets/oku19/960x540 --save_root=/home/user/Desktop/datasets/oku19/960x540
+--input_type=rgb --eval_iter=150000
+```
+##### Build tubes
+You will need frame-level detections and you will need to navigate to `online-tubes`
+-requires Matlab, Detections.
+
+Step-1: you will need to spacify `data_root`, `data_root` and `iteration_num_*` in `I01onlineTubes` and `I02genFusedTubes`;
+<br>
+Step 2: run  `I01onlineTubes` in matlab this print out video-mean-ap and save the results in a `.mat` file
+
+Results are saved in `save_root/results.mat`. Additionally,`action-path` and `action-tubes` are also stored under `save_root\oku19\*` folders.
+
+
+
+
+## Instructions
+### Train SSD
+- Requires fc-reduced [VGG-16](https://arxiv.org/abs/1409.1556) model weights,
+weights are already there in dataset tarball under `train_data` subfolder. (file called "vgg16_reducedfc.pth")
+- By default, we assume that you have downloaded that dataset. (https://drive.google.com/open?id=1-xud1IMVWKqIOUveSlDxwAfvFfDdxg9l)
+- To train SSD using the training script simply specify the parameters listed in `train-oku19-val.py` as a flag or manually change them.
+Let's assume that you extracted dataset in `/home/user/Desktop/datasets/oku19/960x540` directory then your train command from the root directory of this repo is going to be:
+```Shell
+CUDA_VISIBLE_DEVICES=0 python3 train-ucf24.py --data_root=/home/user/Desktop/datasets/oku19/960x540 --save_root=/home/user/Desktop/datasets/oku19/960x540 --input_type=rgb --stepvalues=30000,60000,90000 --max_iter=120000
+```
+Different parameters in `train-oku19-val.py` will result in different performance
+
+### Building Tubes
+To generate the tubes and evaluate them, first, you will need frame-level detection then you can navigate to 'online-tubes' to generate tubes using `I01onlineTubes`.
+
+##### produce frame-level detection
+Once you have trained network then you can use `test-oku19.py` to generate frame-level detections. Pretrained weights are aviable on the google drive (https://drive.google.com/drive/folders/1IJgcie6-aCGaZ4cktbFjVLf_iaj91pDH)
+To eval SSD using the test script simply specify the parameters listed in `test-oku19.py` as a flag or manually change them. for e.g.:
+```Shell
+CUDA_VISIBLE_DEVICES=0 python3 test-oku19.py --data_root=/home/user/Desktop/datasets/oku19/960x540 --save_root=/home/user/Desktop/datasets/oku19/960x540
+--input_type=rgb --eval_iter=150000
+```
+-eval_iter declares how many iterations, this can be found inwith the weight name. for example 14000 iterations in weight "ssd300_oku20_14000.pth"
+
+-Note
+  * By default it will compute frame-level detections and store them as well as compute frame-mean-AP in models saved at 90k and 120k iteration.
+  * There is a log file created for each iteration's frame-level evaluation.
+
+##### Build tubes
+You will need frame-level detections and you will need to navigate to `online-tubes`
+
+Step-1: you will need to spacify `data_root`, `data_root` and `iteration_num_*` in `I01onlineTubes`;
+<br>
+Step 2: run  `I01onlineTubes` in matlab this print out video-mean-ap and save the results in a `.mat` file
+
+Results are saved in `save_root/results.mat`. Additionally,`action-path` and `action-tubes` are also stroed under `save_root\ucf24\*` folders.
+
+* NOTE: `I01onlineTubes` and `I02genFusedTubes` not only produce video-level mAP; they also produce video-level classification accuracy on 12 classes of the okutama-action dataset
+
+
+
+## 
+
+## 
+
+##
+
+## 
+
+## 
+
+## 
+
+## 
+
+## 
+
+
+
+
+
+
+# Real-time online Action Detection
 Real-time online Action Detection: ROAD
 An implementation of our work ([Online Real-time Multiple Spatiotemporal Action Localisation and Prediction](https://arxiv.org/pdf/1611.08563.pdf)) published in ICCV 2017.
 
@@ -55,7 +151,7 @@ UCF24DETECTION is a dataset loader Class in `data/ucf24.py` that inherits `torch
 ## Training SSD
 - Requires fc-reduced [VGG-16](https://arxiv.org/abs/1409.1556) model weights,
 weights are already there in dataset tarball under `train_data` subfolder.
-- By default, we assume that you have downloaded that dataset.    
+- By default, we assume that you have downloaded that dataset.
 - To train SSD using the training script simply specify the parameters listed in `train-ucf24.py` as a flag or manually change them.
 
 Let's assume that you extracted dataset in `/home/user/ucf24/` directory then your train command from the root directory of this repo is going to be:
