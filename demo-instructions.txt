@@ -21,6 +21,7 @@ To install all dependancies with pip3 run:
 pip3 install --user pipenv
 cd realtime-action-detection/
 pipenv install requests
+To activate this project's virtualenv, `run pipenv shell.`
 
 Save the weights within the datasets cache. Example: desktop/realtime-action-detection/dataset/micro-demo-test-Set/cache/CONV-SSD-oku19-rgb-bs-32-vgg16-lr-00070
 Weights need to be saved in a folder like this “CONV-SSD-oku19-rgb-bs-32-vgg16-lr-00070” this means the learning rate was “7e-4” and batch-size was “32”

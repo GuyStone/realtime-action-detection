@@ -12,7 +12,15 @@ The demos will include the RGP frames and labels, detections results and ground 
 
 ##### produce frame-level detection
 To eval SSD using the test script simply specify the parameters listed in `test-oku19.py` as a flag or manually change them. for e.g.:
--requires GPU, Dataset, Trained Weights.
+-requires Python3, pip3, GPU, Dataset, Trained Weights.
+
+SSD dependancies are installed with pip3, run:
+`pip3 install --user pipenv`
+`cd realtime-action-detection/`
+`pipenv install requests`
+To activate this project's virtualenv, `run pipenv shell.`
+
+
 ```Shell
 CUDA_VISIBLE_DEVICES=0 python3 test-oku19.py --data_root=/home/user/Desktop/datasets/oku19/960x540 --save_root=/home/user/Desktop/datasets/oku19/960x540
 --input_type=rgb --eval_iter=150000
