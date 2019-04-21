@@ -9,9 +9,10 @@
 
 function I01onlineTubes()
 
-data_root = '/mnt/sun-gamma/datasets';
-save_root = '/mnt/sun-gamma/datasets';
-iteration_nums = [70000,120000,50000,90000]; % you can also evaluate on multiple iterations
+data_root = '~/data/oku19/960x540/demo/micro-demo-test-Set';
+save_root = '~/data/oku19/960x540/demo/micro-demo-test-Set';
+%  iteration_nums = [70000,120000,50000,90000]; % you can also evaluate on multiple iterations
+iteration_nums = [15000];
 
 % add subfolder to matlab paths
 addpath(genpath('gentube/'));
@@ -20,26 +21,35 @@ addpath(genpath('eval/'));
 addpath(genpath('utils/'));
 model_type = 'CONV';
 
+% // completeList = {...
+% //     {'ucf24','01', {'rgb'}, iteration_nums,{'score'}},...
+% //     {'ucf24','01', {'brox'}, iteration_nums,{'score'}}...
+% //     {'ucf24','01', {'fastOF'}, iteration_nums,{'score'}}...
+% //     };
+
 completeList = {...
-    {'ucf24','01', {'rgb'}, iteration_nums,{'score'}},...
-    {'ucf24','01', {'brox'}, iteration_nums,{'score'}}...
-    {'ucf24','01', {'fastOF'}, iteration_nums,{'score'}}...
+    {'oku19','01', {'rgb'}, iteration_nums,{'score'}},...
+    {'oku19','01', {'brox'}, iteration_nums,{'score'}}...
+    {'oku19','01', {'fastOF'}, iteration_nums,{'score'}}...
     };
 
 alldopts = cell(2,1);
 count = 1;
-gap=3;
+gap=5;
 
 for setind = 1 %:length(completeList)
     [dataset, listid, imtypes, iteration_nums, costTypes] = enumurateList(completeList{setind});
+%     costTypes {'score'}
     for ct = 1:length(costTypes)
         costtype = costTypes{ct};
         for imtind = 1:length(imtypes)
             imgType = imtypes{imtind};
             for iteration = iteration_nums
-                for iouthresh=0.1
+                for iouthresh=0.2
                     %% generate directory sturcture based on the options
                     dopts = initDatasetOpts(data_root,save_root,dataset,imgType,model_type,listid,iteration,iouthresh,costtype, gap);
+%                    dopts.gap: 3
+%   dopts.actions {'Calling'}{'Carrying'}{'Drinking'}{'"Hand'}{'Hugging'}{'Lying'}{'Pushing/Pulling'}{'Reading'}{'Running'}{'Sitting'}{'Standing'}{'Walking'}
                     if exist(dopts.detDir,'dir')
                         alldopts{count} = dopts;
                         count = count+1;
@@ -56,10 +66,10 @@ results = cell(2,1);
 for index = 1:count-1
     opts = alldopts{index};
     if exist(opts.detDir,'dir')
-        fprintf('Video List %02d :: %s\nAnnotFile :: %s\nImage  Dir :: %s\nDetection Dir:: %s\nActionpath Dir:: %s\nTube Dir:: %s\n',...
-            index, opts.vidList, opts.annotFile, opts.imgDir, opts.detDir, opts.actPathDir, opts.tubeDir);
+        fprintf('Video List %02d :: %s\nAnnotFile :: %s\nImage  Dir :: %s\nDetection Dir:: %s\nActionpath Dir:: %s\nTube Dir:: %s\n', index, opts.vidList, opts.annotFile, opts.imgDir, opts.detDir, opts.actPathDir, opts.tubeDir);
         %% Build action paths given frame level detections
         actionPaths(opts);
+        
         %% Perform temproal labelling and evaluate; results saved in results cell
         result_cell = gettubes(opts);
         results{index,1} = result_cell;
@@ -74,10 +84,16 @@ end
 %% save results
 save_dir = [save_root,'/results/'];
 if ~isdir(save_dir)
-    mkdir(save_dir)
+    mkdir(save_dir);
 end
 save_dir
 save([save_dir,'online_tubes_results_CONV.mat'],'results')
+% save_dir = [save_root,'/results/'];
+% if ~isdir(save_dir)
+%     mkdir(save_dir)
+% end
+% save_dir
+% save([save_dir,'online_tubes_results_CONV.mat'],'results')
 
 %% Function to enumrate options
 function [dataset,listnum,imtypes,weights,costTypes] = enumurateList(sublist)
@@ -94,7 +110,7 @@ class_aps = cell(2,1);
 % save file name to save result for eah option type
 saveName = sprintf('%stubes-results.mat',dopts.tubeDir);
 if ~exist(saveName,'file')
-    
+
     annot = load(dopts.annotFile);
     annot = annot.annot;
     testvideos = getVideoNames(dopts.vidList);
@@ -110,10 +126,10 @@ if ~exist(saveName,'file')
         else
             load(tubesSaveName)
         end
-        
+
         min_num_frames = 8;    kthresh = 0.0;     topk = 40;
         xmldata = convert2eval(smoothedtubes, min_num_frames, kthresh*ones(numActions,1), topk,testvideos);
-        
+
         %% Do the evaluation
         for iou_th =[0.2,[0.5:0.05:0.95]]
             [tmAP,tmIoU,tacc,AP] = get_PR_curve(annot, xmldata, testvideos, dopts.actions, iou_th);

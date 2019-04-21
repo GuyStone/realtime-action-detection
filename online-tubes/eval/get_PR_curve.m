@@ -1,13 +1,14 @@
 %%##################################################################################################################################################
 
 %% Author: Gurkirt Singh 
-%% Release date: 26th January 2017
+%% Release date: 26th January
 % STEP-1: loop over the videos present in the predicited Tubes
 % STEP-2: for each video get the GT Tubes
 % STEP-3: Compute the spatio-temporal overlap bwtween GT tube and predicited
 % tubes
 % STEP-4: then label tp 1 or fp 0 to each predicted tube
 % STEP-5: Compute PR and AP for each class using scores, tp and fp in allscore
+
 %##################################################################################################################################################
 
 function [mAP,mAIoU,acc,AP] = get_PR_curve(annot, xmldata, testlist, actions, iou_th)
@@ -39,16 +40,26 @@ for vid=1:num_vid
     
     dt_tubes = sort_detection(xmldata(dtVidInd));
     gt_tubes = annot(gtVidInd).tubes;
-        
+    
     num_detection = length(dt_tubes.class);
     num_gt_tubes = length(gt_tubes);
     
     %     total_num_detection = total_num_detection + num_detection;
     for gtind = 1:num_gt_tubes
         action_id = gt_tubes(gtind).class;
+%         action_id
+%         total_num_gt_tubes
         total_num_gt_tubes(action_id) = total_num_gt_tubes(action_id) + 1;
+%         total_num_gt_tubes(action_id) = total_num_gt_tubes(action_id) + 1/length(action_id);
+          
+%         total_num_gt_tubes
+%         total_num_gt_tubes(action_id)
+%         pause
     end
-    gts(vid) = action_id;
+    
+%     goes through whole video and counts the number of classes for each action
+%     tube.. this equal total_num_gt_tubes
+    gts(vid) = action_id(1);
     dt_labels = dt_tubes.class;
     covered_gt_tubes = zeros(num_gt_tubes,1);
     for dtind = 1:num_detection
@@ -63,8 +74,8 @@ for vid=1:num_vid
         
         ioumax=-inf;maxgtind=0;
         for gtind = 1:num_gt_tubes
-            action_id = gt_tubes(gtind).class;
-            if ~covered_gt_tubes(gtind) && dt_label == action_id
+            action_id = gt_tubes(gtind).class;            
+            if ~covered_gt_tubes(gtind) && any((dt_label==action_id) == 1)
                 gt_fnr = gt_tubes(gtind).sf:gt_tubes(gtind).ef;
 %                 if isempty(gt_fnr)
 %                     continue
@@ -103,20 +114,23 @@ for a=1:num_actions
         cdet = tp(end);
         averageIoU(a) = (averageIoU(a)+0.000001)/(tp(end)+0.00001);
     end
-    
+%     total_num_gt_tubes
+% % %     tp
+%     total_num_gt_tubes(a)
+%     pause
     recall=tp/total_num_gt_tubes(a);
     precision=tp./(fp+tp);
     AP(a) = xVOCap(recall,precision);
     draw = 0;
     if draw
-        % plot precision/recall
+%         plot precision/recall
         plot(recall,precision,'-');
         grid;
         xlabel 'recall'
         ylabel 'precision'
         title(sprintf('class: %s, AP = %.3f',actions{a},AP(a)));
     end
-    %     fprintf('Action %02d AP = %0.5f and AIOU %0.5f GT %03d total det %02d correct det %02d %s\n', a, AP(a),averageIoU(a),total_num_gt_tubes(a),length(tp),cdet,actions{a});
+    fprintf('Action %02d AP = %0.5f and AIOU %0.5f GT %03d total det %02d correct det %02d %s\n', a, AP(a),averageIoU(a),total_num_gt_tubes(a),length(tp),cdet,actions{a});
     
 end
 acc = mean(preds==gts);
@@ -130,8 +144,10 @@ mAIoU = mean(averageIoU);
 function [action,vidID] = getActionName(str)
 %------------------------------------------------------------------------------------------------------------------------------------------------
 indx = strsplit(str, '/');
-action = indx{1};
-vidID = indx{2};
+% action = indx{1};
+% vidID = indx{2};
+action = str;
+vidID = str;
 %%
 function sorted_tubes = sort_detection(dt_tubes)
 

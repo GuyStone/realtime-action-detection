@@ -41,14 +41,16 @@ elseif strcmp(dataset,'LIRIS')
     opts.actions = {'discussion', 'give_object_to_person','put_take_obj_into_from_box_desk',...
         'enter_leave_room_no_unlocking','try_enter_room_unsuccessfully','unlock_enter_leave_room',...
         'leave_baggage_unattended','handshaking','typing_on_keyboard','telephone_conversation'};
+elseif strcmp(dataset,'oku19')
+    opts.actions = {'Calling', 'Carrying', 'Drinking', '"Hand', 'Hugging', 'Lying', 'Pushing/Pulling', 'Reading', 'Running', 'Sitting', 'Standing', 'Walking'};
 end
 
-opts.imgDir = sprintf('%s/%s/%s-images/',data_root,dataset,imtypes{1});
+opts.imgDir = sprintf('%s/%s/%s-images/',data_root,imtypes{1});
 
-opts.basedetDir = sprintf('%s/%s/detections/%s-%s-%s-%06d/',baseDir,dataset,model_type,imtypes{1},listid,iteration_nums(1));
-opts.topdetDir = sprintf('%s/%s/detections/%s-%s-%s-%06d/',baseDir,dataset,model_type,imtypes{2},listid,iteration_nums(2));
+opts.basedetDir = sprintf('%s/detections/%s-%s-%s-%06d/',baseDir,model_type,imtypes{1},listid,iteration_nums(1));
+opts.topdetDir = sprintf('%s/detections/%s-%s-%s-%06d/',baseDir,model_type,imtypes{2},listid,iteration_nums(2));
 
-opts.annotFile = sprintf('%s/%s/splitfiles/annots.mat',data_root,dataset);
+opts.annotFile = sprintf('%s/%s/splitfiles/annots.mat',data_root);
 
 opts.actPathDir = sprintf('%s/%s/actionPaths/%s/%s-%s-%s-%s-%d-%d-%s-%d-%04d-fiou%03d/',baseDir,dataset,fusiontype,model_type,imtypes{1},imtypes{2},...
                                         listid,iteration_nums(1),iteration_nums(2),costtype,gap,iouthresh*100,uint16(fuseiouth*100));
@@ -65,7 +67,7 @@ if exist(opts.basedetDir,'dir')
         mkdir(opts.tubeDir)
     end
     
-    if strcmp(dataset,'ucf24') || strcmp(dataset,'JHMDB')
+    if strcmp(dataset,'oku19') || strcmp(dataset,'JHMDB')
         createdires({opts.actPathDir},opts.actions)
     end
 end

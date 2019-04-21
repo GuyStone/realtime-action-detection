@@ -17,24 +17,24 @@ function frameAP()
 addpath(genpath('eval/'));
 addpath(genpath('utils/'));
 addpath(genpath('actionpath/'));
-data_root = '/mnt/mars-fast/datasets';
-save_root = '/mnt/mars-gamma/datasets';
+data_root = '~/data/oku19/960x540';
+save_root = '~/data/oku19/960x540';
 iou_th = 0.5;
 model_type = 'CONV';
-dataset = 'ucf24';
+dataset = 'oku19';
 list_id = '01';
-split_file = sprintf('%s/%s/splitfiles/testlist%s.txt',data_root,dataset,list_id);
-annotfile = sprintf('%s/%s/splitfiles/annots.mat',data_root,dataset);
+split_file = sprintf('%s/splitfiles/testlist%s.txt',data_root,list_id);
+annotfile = sprintf('%s/splitfiles/finalAnnots.mat',data_root);
 annot = load(annotfile);
 annot = annot.annot;
 testlist = getVideoNames(split_file);
 num_vid = length(testlist);
-num_actions = 24;
+num_actions = 12;
 
 logfile = fopen('frameAP.log','w'); % open log file
 
-imgType = 'rgb'; iteration_num = 120000;
-det_dirs1 = sprintf('%s/%s/detections/%s-%s-%s-%06d/',save_root,dataset,model_type,imgType,list_id,iteration_num);
+imgType = 'rgb'; iteration_num = 20000;
+det_dirs1 = sprintf('%s/detections/%s-%s-%s-%06d/',save_root,model_type,imgType,list_id,iteration_num);
 imgType = 'brox'; iteration_num = 120000;
 det_dirs2 = sprintf('%s/%s/detections/%s-%s-%s-%06d/',save_root,dataset,model_type,imgType,list_id,iteration_num);
 imgType = 'fastOF'; iteration_num = 120000;
@@ -51,11 +51,11 @@ for c=1:length(combinations)
     if length(comb)>1
         fusion_type = comb{3};
         line = [line,' ',comb{2},' \n\n fusion type: ',fusion_type,'\n\n'];
-        
+
     else
         fusion_type = 'none';
     end
-    
+
     line = sprintf('Evaluation for %s\n',line);
     fprintf('%s',line)
     fprintf(logfile,'%s',line);
@@ -64,10 +64,10 @@ for c=1:length(combinations)
     for a=1:num_actions
         allscore{a} = zeros(24*20*160000,2,'single');
     end
-    
+
     total_num_gt_boxes = zeros(num_actions,1);
     annotNames = {annot.name};
-    
+
     for vid=1:num_vid
         video_name = testlist{vid};
         [~,gtVidInd] = find(strcmp(annotNames, testlist{vid}));
@@ -101,16 +101,16 @@ for c=1:length(combinations)
                         end
                     end
                 end
-                
+
                 if ioumax>=iou_th
                     covered_gt_boxes(maxgtind) = 1;
                     allscore{dt_label}(cc(dt_label),:) = [dt_score,1]; % tp detection
                 else
                     allscore{dt_label}(cc(dt_label),:) = [dt_score,0]; % fp detection
                 end
-                
+
             end
-            
+
         end
     end
     % Sort scores and then reorder tp fp labels in result precision and recall for each action
@@ -130,7 +130,7 @@ for c=1:length(combinations)
         fprintf('%s',line);
         fprintf(logfile,'%s',line);
     end
-    
+
     AP(isnan(AP)) = 0;
     mAP  = mean(AP);
     line = sprintf('\nMean AP::=> %.5f\n\n',mAP);
@@ -233,9 +233,9 @@ function [bxs, sc] = read_detections(detection_dir, video_name, nf)
 detection_dir1 = detection_dir{1};
 det_file = sprintf('%s%s/%05d.mat', detection_dir1, video_name, nf);
 load(det_file); % loads loc and scores variable
-boxes = [loc(:,1)*320, loc(:,2)*240, loc(:,3)*320, loc(:,4)*240] + 1;
+boxes = [loc(:,1)*960, loc(:,2)*540, loc(:,3)*960, loc(:,4)*540] + 1;
 boxes(boxes(:,1)<1,1) = 1;   boxes(boxes(:,2)<1,2) = 1;
-boxes(boxes(:,3)>320,3) = 320;  boxes(boxes(:,4)>240,4) = 240;
+boxes(boxes(:,3)>960,3) = 960;  boxes(boxes(:,4)>540,4) = 540;
 scores = [scores(:,2:end),scores(:,1)];
 bxs = struct();
 sc = struct();
@@ -245,9 +245,9 @@ if length(detection_dir)>1
     detection_dir1 = detection_dir{2};
     det_file = sprintf('%s%s/%05d.mat', detection_dir1, video_name, nf);
     load(det_file); % loads loc and scores variable
-    boxes = [loc(:,1)*320, loc(:,2)*240, loc(:,3)*320, loc(:,4)*240] + 1;
+    boxes = [loc(:,1)*960, loc(:,2)*540, loc(:,3)*960, loc(:,4)*540] + 1;
     boxes(boxes(:,1)<1,1) = 1;   boxes(boxes(:,2)<1,2) = 1;
-    boxes(boxes(:,3)>320,3) = 320;  boxes(boxes(:,4)>240,4) = 240;
+    boxes(boxes(:,3)>960,3) = 960;  boxes(boxes(:,4)>540,4) = 540;
     scores = [scores(:,2:end),scores(:,1)];
     bxs(2).b = boxes;
     sc(2).s = scores;

@@ -18,7 +18,7 @@ for vid=1:step:NumVideos
     
     videoID  = videos(vid).video_id;
     pathsSaveName = [actionPathDir,videoID,'-actionpaths.mat'];
-   
+    
     if ~exist(pathsSaveName,'file')
         error('Action path does not exist please genrate actin path', pathsSaveName)
     else

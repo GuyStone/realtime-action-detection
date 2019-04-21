@@ -26,6 +26,7 @@ function st_iou = compute_spatio_temporal_iou(gt_fnr, gt_bb, dt_fnr, dt_bb)
 % -------------------------------------------------------------------------
 
 % time gt begin
+
 tgb = gt_fnr(1);
 % time gt end
 tge = gt_fnr(end);
@@ -59,17 +60,27 @@ if T_i>0
             pf = i;
         end
         
-        gt_bound = gt_bb(int_find_gt(pf),:);
-        dt_bound = dt_bb(int_find_dt(pf),:)+1;
-        
-        % gt_bound = [gt_bound(:,1:2) gt_bound(:,3:4)-gt_bound(:,1:2)];
+        if (int_find_gt(pf) <= length(gt_bb) )
+            gt_bound = gt_bb(int_find_gt(pf),:);
+            gt_bound = cell2mat(gt_bound);
+            dt_bound = dt_bb(int_find_dt(pf),:)+1;
+            
+            gt_bound = [gt_bound(:,1:2) gt_bound(:,3:4)-gt_bound(:,1:2)];
+            
+            
+            iou(i) = inters_union(double(gt_bound),double(dt_bound));  
+        end
+       
+ 
         % dt_bound = [dt_bound(:,1:2) dt_bound(:,3:4)-dt_bound(:,1:2)];
-        iou(i) = inters_union(double(gt_bound),double(dt_bound));
+           
     end
     % finalspatio-temporal IoU threshold
+%     iou
     st_iou = T_iou*mean(iou);
+%     st_iou
 else
-    st_iou =0;
+    st_iou = 0;
 end
 % % iou_thresh = 0.2,...,0.6 % 'Learing to track paper' takes 0.2 for UCF101 and 0.5 for JHMDB
 % if delta >= iou_thresh

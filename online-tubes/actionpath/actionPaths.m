@@ -24,16 +24,24 @@ for vid=1:NumVideos
     tic;
     videoID  = videos{vid};
     pathsSaveName = [saveName,videoID,'-actionpaths.mat'];
-    
     videoDetDir = [detresultpath,videoID,'/'];
 
     if ~exist(pathsSaveName,'file')
         fprintf('computing tubes for vide [%d out of %d] video ID = %s\n',vid,NumVideos, videoID);
         
+%         vid "2"
+%         videoID "1.1.1"
+%         videoDetDir "/data/oku19/960x540/detections/CONV-rgb-01-032000/1.1.9/"
+        
         %% loop over all the frames of the video
         fprintf('Reading detections ');
         
         frames = readDetections(videoDetDir);
+        
+%       location details from matlab file   
+%   frames(f).boxes = loc;
+%   frames(f).scores = [scores(:,2:end),scores(:,1)];
+%        scores [2-13 classes? ,  score(1) background]
         
         fprintf('\nDone reading detections\n');
         
@@ -45,6 +53,12 @@ for vid=1:NumVideos
             allpaths{a} = genActionPaths(frames, a, nms_thresh, iouth, costtype,gap);
         end
         
+% allpaths =
+% 1.1.9
+%     {1×1041 struct}    {1×871 struct}    {1×472 struct}    {1×565 struct}    {1×801 struct}    {1×682 struct}    {1×850 struct}
+% 
+%     {1×1010 struct}    {1×837 struct}    {1×998 struct}    {1×914 struct}    {1×860 struct}
+
         fprintf('results are being saved in::: %s for %d classes\n',pathsSaveName,length(allpaths));
         save(pathsSaveName,'allpaths');
         fprintf('All Done in %03d Seconds\n',round(toc));
@@ -117,6 +131,9 @@ end
 function frames = readDetections(detectionDir)
 
 detectionList = sortdirlist([detectionDir,'*.mat']);
+
+% detectionList = list of mat lab files detection
+
 frames = struct([]);
 numframes = length(detectionList);
 scores = 0;
@@ -124,11 +141,11 @@ loc = 0;
 for f = 1 : numframes
   filename = [detectionDir,detectionList{f}];
   load(filename); % loads loc and scores variable
-  loc = [loc(:,1)*320, loc(:,2)*240, loc(:,3)*320, loc(:,4)*240];
+  loc = [loc(:,1)*960, loc(:,2)*540, loc(:,3)*960, loc(:,4)*540];
   loc(loc(:,1)<0,1) = 0;
   loc(loc(:,2)<0,2) = 0;
-  loc(loc(:,3)>319,3) = 319;
-  loc(loc(:,4)>239,4) = 239;
+  loc(loc(:,3)>959,3) = 959;
+  loc(loc(:,4)>539,4) = 539;
   loc = loc + 1;
   frames(f).boxes = loc;
   frames(f).scores = [scores(:,2:end),scores(:,1)];

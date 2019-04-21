@@ -1,18 +1,23 @@
 
 function I02genFusedTubes()
 
-data_root = '/mnt/mars-fast/datasets';
-save_root = '/mnt/mars-gamma/datasets';
+data_root = '~/data/oku19/960x540';
+save_root = '~/data/oku19/960x540';
 
 addpath(genpath('actionpath/'));
 addpath(genpath('gentube/'));
 addpath(genpath('eval/'));
 addpath(genpath('utils/'));
 
+% % completeList = {...
+% %     {'oku19','01',{'rgb','brox'},[120000,120000],{'nwsum-plus','cat','mean'}, 0.25},...
+% %     {'oku19','01',{'rgb','fastOF'},[120000,120000],{'nwsum-plus','cat','mean'}, 0.25},...
+% %     };
+
 completeList = {...
-    {'ucf24','01',{'rgb','brox'},[120000,120000],{'nwsum-plus','cat','mean'}, 0.25},...
-    {'ucf24','01',{'rgb','fastOF'},[120000,120000],{'nwsum-plus','cat','mean'}, 0.25},...
-    };
+     {'oku19','01',{'rgb','brox'},[32000,32000],{'nwsum-plus','cat','mean'}, 0.25},...
+     {'oku19','01',{'rgb','fastOF'},[32000,32000],{'nwsum-plus','cat','mean'}, 0.25},...
+     };
 
 model_type = 'CONV';
 costtype = 'score';
@@ -92,7 +97,7 @@ class_aps = cell(2,1);
 % save file name to save result for eah option type
 saveName = sprintf('%stubes-results.mat',dopts.tubeDir);
 if ~exist(saveName,'file')
-    
+
     annot = load(dopts.annotFile);
     annot = annot.annot;
     testvideos = getVideoNames(dopts.vidList);
@@ -108,12 +113,12 @@ if ~exist(saveName,'file')
         else
             load(tubesSaveName)
         end
-        
+
         min_num_frames = 8;    kthresh = 0.0;     topk = 40;
         % strip off uncessary parts and remove very small actions less than
         % 8 frames; not really necessary but for speed at eval time
         xmldata = convert2eval(smoothedtubes, min_num_frames, kthresh*ones(numActions,1), topk,testvideos);
-        
+
         %% Do the evaluation
         for iou_th =[0.2,[0.5:0.05:0.95]]
             [tmAP,tmIoU,tacc,AP] = get_PR_curve(annot, xmldata, testvideos, dopts.actions, iou_th);
@@ -125,7 +130,7 @@ if ~exist(saveName,'file')
         end
         fprintf('\n');
     end
-    
+
     results(counter:end,:) = [];
     result = cell(2,1);
     result{2} = class_aps;
