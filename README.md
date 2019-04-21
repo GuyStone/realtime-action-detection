@@ -2,9 +2,8 @@
 Please find the original Real-time online Action Detection (https://github.com/gurkirt/realtime-action-detection) instuctions below. This work has been extended to use SS512 and accept okutama-action dataset (https://github.com/miquelmarti/Okutama-Action)
 
 ## Demo
-- A subset of the dataset is included for demo purposes. 
+- A subset of the dataset is included for demo purposes.
 - - demo-test-Set includes the whole of test video 1.1.8
-- - tiny-demo-test-Set includes 350 frames from test video 1.1.8
 - - micro-demo-test-Set includes 11 frames from test video 1.1.8
 The demos will include the RGP frames and labels, detections results and ground truth Tubes)
 - It can be download here (https://drive.google.com/open?id=1-xud1IMVWKqIOUveSlDxwAfvFfDdxg9l)
@@ -72,21 +71,21 @@ Results are saved in `save_root/results.mat`. Additionally,`action-path` and `ac
 
 
 
-## 
-
-## 
+##
 
 ##
 
-## 
+##
 
-## 
+##
 
-## 
+##
 
-## 
+##
 
-## 
+##
+
+##
 
 
 

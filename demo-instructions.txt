@@ -1,0 +1,49 @@
+Instructions.
+
+This project can be broken down into three sections. Training SSD, Frame-Level Detections and Building Tubes.
+Simply the SSD is trained using the training set in the dataset, Frame-Level Detections are created from the test set in the dataset and finally Tubes are build using the frame-level detections
+
+All additional materials are available on google drive for downloading.
+https://drive.google.com/drive/u/0/folders/1iF34aHNm_ygFUvrdTLq-NWDwA7PFkhBu
+This includes Dataset (.jgp and labels), Pretrained weights and Detection results.
+
+____________________________________________________________________________________
+____________________________________________________________________________________
+DEMO
+A demo is included in the project within dataset/micro-demo-test-Set (10 frames from test video 1.1.8) this includes 11 jpg, labels and detections results.
+
+…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…....…..…..…....…..…..…..
+Frame-Level Detections (Requires Python 3.0, Pip3, a GPU, and pre-trained weights)
+Download the weights: https://drive.google.com/drive/folders/1IJgcie6-aCGaZ4cktbFjVLf_iaj91pDH
+
+SETUP Project
+To install all dependancies with pip3 run:
+pip3 install --user pipenv
+cd realtime-action-detection/
+pipenv install requests
+
+Save the weights within the datasets cache. Example: desktop/realtime-action-detection/dataset/micro-demo-test-Set/cache/CONV-SSD-oku19-rgb-bs-32-vgg16-lr-00070
+Weights need to be saved in a folder like this “CONV-SSD-oku19-rgb-bs-32-vgg16-lr-00070” this means the learning rate was “7e-4” and batch-size was “32”
+
+To evaluate the frames use this command:
+CUDA_VISIBLE_DEVICES=0 python3 test-oku19.py --data_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/micro-demo-test-Set --save_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/micro-demo-test-Set  --input_type=rgb --eval_iter=15000 --learning-rate=7e-4 --batch_size=32
+
+To check GPUs use “nvidia-smi”
+
+…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..…..
+Building Tubes
+
+Open online-tubes\I01onlineTubes.m in MATLAB.
+
+This requires data_root, save_root and iteration_nums to be declared.
+If the project has been saved on Desktop this would be:
+data_root = '~/Desktop/realtime-action-detection/dataset/micro-demo-test-Set';
+save_root = '~/Desktop/realtime-action-detection/dataset/micro-demo-test-Set';
+iteration_nums = [15000];
+…
+Results will be saved in save_root/results.mat. and action-path and action-tubes are also stored under save_root\* folders.
+____________________________________________________________________________________
+____________________________________________________________________________________
+
+NOTES:
+realtime-action-detection/dataset/[dataset-name]/splitfile contains txt files of declare what to evaluate and train on.  To change the files name to training/eval (trainval or testival)  updated (line 124) in data/oku19.py
