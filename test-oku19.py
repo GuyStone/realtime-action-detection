@@ -194,7 +194,7 @@ def main():
     exp_name = 'CONV-SSD-{}-{}-bs-{}-{}-lr-{:05d}'.format(args.dataset, args.input_type,
                             args.batch_size, args.basenet[:-14], int(args.lr * 100000))
 
-    args.save_root += args.dataset+'/'
+    args.save_root += '/'
     # args.data_root += args.dataset+'/'
     args.listid = '01' ## would be usefull in JHMDB-21
     print('Exp name', exp_name, args.listid)
