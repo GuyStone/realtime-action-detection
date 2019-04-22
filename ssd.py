@@ -1,3 +1,13 @@
+""" SSD network Classes
+Original author: Ellis Brown, Max deGroot for VOC dataset
+https://github.com/amdegroot/ssd.pytorch
+Updated by Gurkirt Singh.
+
+Updated by Guy Stone
+Code has been adapted for okutama-action dataset and SSD512.
+---------------------------------------------------------
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
