@@ -9,8 +9,8 @@
 
 function I01onlineTubes()
 
-data_root = '~/dev/final/realtime-action-detection/dataset/micro-demo-test-Set';
-save_root = '~/dev/final/realtime-action-detection/dataset/micro-demo-test-Set';
+data_root = '~/dev/Desktop/realtime-action-detection/dataset/micro-demo-test-Set';
+save_root = '~/dev/Desktop/realtime-action-detection/dataset/micro-demo-test-Set';
 %  iteration_nums = [70000,120000,50000,90000]; % you can also evaluate on multiple iterations
 iteration_nums = [15000];
 
@@ -69,7 +69,7 @@ for index = 1:count-1
         fprintf('Video List %02d :: %s\nAnnotFile :: %s\nImage  Dir :: %s\nDetection Dir:: %s\nActionpath Dir:: %s\nTube Dir:: %s\n', index, opts.vidList, opts.annotFile, opts.imgDir, opts.detDir, opts.actPathDir, opts.tubeDir);
         %% Build action paths given frame level detections
         actionPaths(opts);
-        
+
         %% Perform temproal labelling and evaluate; results saved in results cell
         result_cell = gettubes(opts);
         results{index,1} = result_cell;

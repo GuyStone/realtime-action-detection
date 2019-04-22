@@ -23,7 +23,7 @@ To activate this project's virtualenv, `run pipenv shell.`
 
 ```Shell
 CUDA_VISIBLE_DEVICES=0 python3 test-oku19.py --data_root=/home/user/Desktop/datasets/oku19/960x540 --save_root=/home/user/Desktop/datasets/oku19/960x540
---input_type=rgb --eval_iter=150000
+--input_type=rgb --eval_iter=15000 --learning-rate=7e-4
 ```
 ##### Build tubes
 You will need frame-level detections and you will need to navigate to `online-tubes`
@@ -57,7 +57,7 @@ To generate the tubes and evaluate them, first, you will need frame-level detect
 Once you have trained network then you can use `test-oku19.py` to generate frame-level detections. Pretrained weights are aviable on the google drive (https://drive.google.com/drive/folders/1IJgcie6-aCGaZ4cktbFjVLf_iaj91pDH)
 To eval SSD using the test script simply specify the parameters listed in `test-oku19.py` as a flag or manually change them. for e.g.:
 ```Shell
-CUDA_VISIBLE_DEVICES=0 python3 test-oku19.py data_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/960x540 --save_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/960x540 --input_type=rgb --eval_iter=150000
+CUDA_VISIBLE_DEVICES=0 python3 test-oku19.py data_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/960x540 --save_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/960x540 --input_type=rgb --eval_iter=15000 --learning-rate=7e-4
 ```
 -eval_iter declares how many iterations, this can be found inwith the weight name. for example 14000 iterations in weight "ssd300_oku20_14000.pth"
 
