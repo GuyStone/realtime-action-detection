@@ -9,8 +9,8 @@
 
 function I01onlineTubes()
 
-data_root = '~/dev/Desktop/realtime-action-detection/dataset/micro-demo-test-Set';
-save_root = '~/dev/Desktop/realtime-action-detection/dataset/micro-demo-test-Set';
+data_root = '~/Desktop/realtime-action-detection/dataset/micro-demo-test-Set';
+save_root = '~/Desktop/realtime-action-detection/dataset/micro-demo-test-Set';
 %  iteration_nums = [70000,120000,50000,90000]; % you can also evaluate on multiple iterations
 iteration_nums = [15000];
 
