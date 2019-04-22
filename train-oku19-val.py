@@ -83,7 +83,7 @@ def main():
     args.num_classes = num_classes
     args.stepvalues = [int(val) for val in args.stepvalues.split(',')]
     args.loss_reset_step = 30
-    args.eval_step = 2000
+    args.eval_step = 5000
     args.print_step = 10
 
 

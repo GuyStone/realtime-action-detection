@@ -44,9 +44,9 @@ Results are saved in `save_root/results.mat`. Additionally,`action-path` and `ac
 weights are already there in dataset tarball under `train_data` subfolder. (file called "vgg16_reducedfc.pth")
 - By default, we assume that you have downloaded that dataset. (https://drive.google.com/open?id=1-xud1IMVWKqIOUveSlDxwAfvFfDdxg9l)
 - To train SSD using the training script simply specify the parameters listed in `train-oku19-val.py` as a flag or manually change them.
-Let's assume that you extracted dataset in `/home/user/Desktop/datasets/oku19/960x540` directory then your train command from the root directory of this repo is going to be:
+Let's assume that you saved the dataset in `/Users/kcl2/Desktop/realtime-action-detection/dataset/960x540` directory then your train command from the root directory of this repo is going to be:
 ```Shell
-CUDA_VISIBLE_DEVICES=0 python3 train-ucf24.py --data_root=/home/user/Desktop/datasets/oku19/960x540 --save_root=/home/user/Desktop/datasets/oku19/960x540 --input_type=rgb --stepvalues=30000,60000,90000 --max_iter=120000
+CUDA_VISIBLE_DEVICES=0 python3 train-oku19-val.py data_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/960x540 --save_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/960x540 --input_type=rgb --stepvalues=30000,60000,90000 --max_iter=120000
 ```
 Different parameters in `train-oku19-val.py` will result in different performance
 
@@ -57,8 +57,7 @@ To generate the tubes and evaluate them, first, you will need frame-level detect
 Once you have trained network then you can use `test-oku19.py` to generate frame-level detections. Pretrained weights are aviable on the google drive (https://drive.google.com/drive/folders/1IJgcie6-aCGaZ4cktbFjVLf_iaj91pDH)
 To eval SSD using the test script simply specify the parameters listed in `test-oku19.py` as a flag or manually change them. for e.g.:
 ```Shell
-CUDA_VISIBLE_DEVICES=0 python3 test-oku19.py --data_root=/home/user/Desktop/datasets/oku19/960x540 --save_root=/home/user/Desktop/datasets/oku19/960x540
---input_type=rgb --eval_iter=150000
+CUDA_VISIBLE_DEVICES=0 python3 test-oku19.py data_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/960x540 --save_root=/Users/kcl2/Desktop/realtime-action-detection/dataset/960x540 --input_type=rgb --eval_iter=150000
 ```
 -eval_iter declares how many iterations, this can be found inwith the weight name. for example 14000 iterations in weight "ssd300_oku20_14000.pth"
 
@@ -73,9 +72,9 @@ Step-1: you will need to spacify `data_root`, `data_root` and `iteration_num_*` 
 <br>
 Step 2: run  `I01onlineTubes` in matlab this print out video-mean-ap and save the results in a `.mat` file
 
-Results are saved in `save_root/results.mat`. Additionally,`action-path` and `action-tubes` are also stroed under `save_root\ucf24\*` folders.
+Results are saved in `save_root/results.mat`. Additionally,`action-path` and `action-tubes` are also stroed under `save_root\*` folders.
 
-* NOTE: `I01onlineTubes` and `I02genFusedTubes` not only produce video-level mAP; they also produce video-level classification accuracy on 12 classes of the okutama-action dataset
+* NOTE: `I01onlineTubes` not only produce video-level mAP; they also produce video-level classification accuracy on 12 classes of the okutama-action dataset
 
 
 
