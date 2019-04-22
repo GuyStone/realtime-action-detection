@@ -21,12 +21,6 @@ addpath(genpath('eval/'));
 addpath(genpath('utils/'));
 model_type = 'CONV';
 
-% // completeList = {...
-% //     {'ucf24','01', {'rgb'}, iteration_nums,{'score'}},...
-% //     {'ucf24','01', {'brox'}, iteration_nums,{'score'}}...
-% //     {'ucf24','01', {'fastOF'}, iteration_nums,{'score'}}...
-% //     };
-
 completeList = {...
     {'oku19','01', {'rgb'}, iteration_nums,{'score'}},...
     {'oku19','01', {'brox'}, iteration_nums,{'score'}}...
@@ -88,12 +82,6 @@ if ~isdir(save_dir)
 end
 save_dir
 save([save_dir,'online_tubes_results_CONV.mat'],'results')
-% save_dir = [save_root,'/results/'];
-% if ~isdir(save_dir)
-%     mkdir(save_dir)
-% end
-% save_dir
-% save([save_dir,'online_tubes_results_CONV.mat'],'results')
 
 %% Function to enumrate options
 function [dataset,listnum,imtypes,weights,costTypes] = enumurateList(sublist)
